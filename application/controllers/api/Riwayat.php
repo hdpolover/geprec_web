@@ -12,7 +12,7 @@ class Riwayat extends RestController
         parent::__construct();
     }
 
-    public function listKunjungan_get($id_user)
+    public function list_kunjungan_get($id_user)
     {
         $option = array(
             'select'    => 'riwayat_kunjungan.foto_meteran, riwayat_kunjungan.foto_selfie, 
@@ -47,7 +47,7 @@ class Riwayat extends RestController
         }
     }
     
-    public function detailKunjungan_get($id_kunjungan)
+    public function detail_kunjungan_get($id_riwayat_kunjungan)
     {
         $option = array(
             'select'    => 'pengguna.nama, pengguna.foto_pengguna, pengguna.username, riwayat_kunjungan.foto_meteran, riwayat_kunjungan.foto_selfie, 
@@ -57,7 +57,7 @@ class Riwayat extends RestController
                 array('pengguna' => 'riwayat_kunjungan.id_pengguna = pengguna.id_pengguna'),
                 array('kunjungan' => 'riwayat_kunjungan.id_kunjungan = kunjungan.id_kunjungan')
             ),
-            'where'     => 'riwayat_kunjungan.id_kunjungan = ' . $id_kunjungan
+            'where'     => 'riwayat_kunjungan.id_riwayat_kunjungan = ' . $id_riwayat_kunjungan
         );
 
         $data = $this->MCore->join_table($option)->result_array();

@@ -12,7 +12,7 @@ class Kunjungan extends RestController
         parent::__construct();
     }
 
-    public function saveKunjungan_post()
+    public function save_kunjungan_post()
     {
 
         $data = array(
@@ -23,18 +23,42 @@ class Kunjungan extends RestController
             'catatan'           => $this->post('catatan'),
             'latitude'          => $this->post('latitude'),
             'longitude'         => $this->post('longitude'),
-            'foto_kunjungan'    => $this->post('foto_kunjungan'),
         );
 
         $id = $this->input->post('id');
 
+        if ($this->post('foto_kunjungan')) {
+            // $url_param = rtrim($this->post('foto_kunjungan'), '=');
+            // // and later:
+            // $base_64 = $url_param . str_repeat('=', strlen($url_param) % 4);
+            // $img = base64_decode($base_64);
+            $file = $this->post('foto_kunjungan');
+            $pos = strpos($file, ';');
+            $type = explode(':', substr($file, 0, $pos))[1];
+            $mime = explode('/', $type);
+
+            $pathImage = "./upload/foto/" . time() . "." . $mime[1];
+            $file = substr($file, strpos($file, ',') + 1, strlen($file));
+            $dataBase64 = base64_decode($file);
+
+            if (file_put_contents($pathImage, $dataBase64)) {
+                $data['foto_kunjungan'] = base_url() . 'upload/foto/' . time() . "." . $mime[1];
+            } else {
+                // echo $error;
+                $this->response([
+                    'status' => '404',
+                    'message' => "Terjadi Kesalahan saat upload"
+                ], 404);
+
+                exit();
+            }
+        }
 
         //save
         if ($id == '') {
             // $data['id_kunjungan'] = $this->MCore->get_newid('kunjungan', 'id_kunjungan');
 
             $sql = $this->MCore->save_data('kunjungan', $data);
-
         } else {
 
             $sql = $this->MCore->save_data('kunjungan', $data, true, array('us_id' => $id));
@@ -54,7 +78,7 @@ class Kunjungan extends RestController
         }
     }
 
-    public function listKunjungan_get($id_user)
+    public function list_kunjungan_get($id_user)
     {
 
         $option = array(
@@ -89,7 +113,7 @@ class Kunjungan extends RestController
         }
     }
 
-    public function detailKunjungan_get($id_kunjungan)
+    public function detail_kunjungan_get($id_kunjungan)
     {
 
         $option = array(
@@ -124,14 +148,12 @@ class Kunjungan extends RestController
         }
     }
 
-    public function saveNgunjungi_post($id_user, $id_kunjungan)
+    public function save_ngunjungi_post($id_user, $id_kunjungan)
     {
 
         $data = array(
             'id_pengguna' => $id_user,
             'id_kunjungan' => $id_kunjungan,
-            'foto_meteran' => $this->post('foto_meteran'),
-            'foto_selfie' => $this->post('foto_selfie'),
             'id_gas_pelanggan' => $this->post('id_gas_pelanggan'),
             'pembacaan_meter' => $this->post('pembacaan_meter'),
             'tgl_kunjungan' => $this->post('tgl_kunjungan'),
@@ -140,6 +162,59 @@ class Kunjungan extends RestController
 
         $id = $this->input->post('id');
 
+        if ($this->post('foto_meteran')) {
+            // $url_param = rtrim($this->post('foto_kunjungan'), '=');
+            // // and later:
+            // $base_64 = $url_param . str_repeat('=', strlen($url_param) % 4);
+            // $img = base64_decode($base_64);
+            $file = $this->post('foto_meteran');
+            $pos = strpos($file, ';');
+            $type = explode(':', substr($file, 0, $pos))[1];
+            $mime = explode('/', $type);
+
+            $pathImage = "./upload/foto/" . time() . "." . $mime[1];
+            $file = substr($file, strpos($file, ',') + 1, strlen($file));
+            $dataBase64 = base64_decode($file);
+
+            if (file_put_contents($pathImage, $dataBase64)) {
+                $data['foto_meteran'] = base_url() . 'upload/foto/' . time() . "." . $mime[1];
+            } else {
+                // echo $error;
+                $this->response([
+                    'status' => '404',
+                    'message' => "Terjadi Kesalahan saat upload"
+                ], 404);
+
+                exit();
+            }
+        }
+
+        if ($this->post('foto_selfie')) {
+            // $url_param = rtrim($this->post('foto_kunjungan'), '=');
+            // // and later:
+            // $base_64 = $url_param . str_repeat('=', strlen($url_param) % 4);
+            // $img = base64_decode($base_64);
+            $file = $this->post('foto_selfie');
+            $pos = strpos($file, ';');
+            $type = explode(':', substr($file, 0, $pos))[1];
+            $mime = explode('/', $type);
+
+            $pathImage = "./upload/foto/" . time() . "." . $mime[1];
+            $file = substr($file, strpos($file, ',') + 1, strlen($file));
+            $dataBase64 = base64_decode($file);
+
+            if (file_put_contents($pathImage, $dataBase64)) {
+                $data['foto_selfie'] = base_url() . 'upload/foto/' . time() . "." . $mime[1];
+            } else {
+                // echo $error;
+                $this->response([
+                    'status' => '404',
+                    'message' => "Terjadi Kesalahan saat upload"
+                ], 404);
+
+                exit();
+            }
+        }
         //save
         if ($id == '') {
             // $data['id_kunjungan'] = $this->MCore->get_newid('kunjungan', 'id_kunjungan');
