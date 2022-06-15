@@ -12,30 +12,26 @@ class User extends RestController
         parent::__construct();
     }
 
-    public function index_get()
+    public function login_get($username, $password)
     {
-        // code...
-        $id = $this->get('referral_code');
-        if ($id === NULL) {
-            // code...
-            $influencer = $this->influencer->get_influencer();
-        } else {
-            // code...
-            $influencer = $this->influencer->get_influencer($id);
-        }
+        $users = $this->MCore->get_data('pengguna', 'username = "' . $username . '" AND password ="' . $password . '"')->result();
 
-        if ($influencer) {
-            // code...
+        // Check if the users data store contains users
+        if ($users) {
+            // Set the response and exit
+            // Set the response and exit
             $this->response([
                 'status' => true,
-                'data' => $influencer
-            ],  RestController::HTTP_OK);
+                'message' => 'Berhasil',
+                'data'  => $users
+            ], 200);
+            
         } else {
-            // code...
+            // Set the response and exit
             $this->response([
                 'status' => false,
-                'message' => 'id not found'
-            ],  RestController::HTTP_NOT_FOUND);
+                'message' => 'No users were found'
+            ], 404);
         }
     }
 }
