@@ -12,9 +12,12 @@ class User extends RestController
         parent::__construct();
     }
 
-    public function login_get($username, $password)
+    public function login_get()
     {
-        $users = $this->MCore->get_data('pengguna', 'username = "' . $username . '" AND password ="' . $password . '"')->result();
+        $user = $this->get('username');
+        $pass = $this->get('password');
+        
+        $users = $this->MCore->get_data('pengguna', 'username = "' . $user . '" AND password ="' . $pass . '"')->result();
 
         // Check if the users data store contains users
         if ($users) {
