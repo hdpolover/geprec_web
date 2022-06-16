@@ -25,7 +25,7 @@ class Kunjungan extends RestController
             'longitude'         => $this->post('longitude'),
         );
 
-        $id = $this->input->post('id');
+        $id = $this->post('id');
 
         if ($this->post('foto_kunjungan')) {
             // $url_param = rtrim($this->post('foto_kunjungan'), '=');
@@ -59,9 +59,17 @@ class Kunjungan extends RestController
             // $data['id_kunjungan'] = $this->MCore->get_newid('kunjungan', 'id_kunjungan');
 
             $sql = $this->MCore->save_data('kunjungan', $data);
+
+            $d_kunjungan = array(
+                'id_pengguna'   => $this->post('id_pengguna'),
+                'id_kunjungan'  => $this->MCore->get_lastid('kunjungan', 'id_kunjungan'),
+                'tgl_ditambahkan' => date('Y-m-d H:i:s')
+            );
+
+            $this->MCore->save_data('daftar_kunjungan', $d_kunjungan);
         } else {
 
-            $sql = $this->MCore->save_data('kunjungan', $data, true, array('us_id' => $id));
+            $sql = $this->MCore->save_data('kunjungan', $data, true, array('id' => $id));
         }
 
         // CHECK
@@ -148,12 +156,11 @@ class Kunjungan extends RestController
         }
     }
 
-    public function save_ngunjungi_post($id_user, $id_kunjungan)
+    public function save_ngunjungi_post()
     {
-
         $data = array(
-            'id_pengguna' => $id_user,
-            'id_kunjungan' => $id_kunjungan,
+            'id_pengguna' => $this->post('id_user'),
+            'id_kunjungan' => $this->post('id_kunjungan'),
             'id_gas_pelanggan' => $this->post('id_gas_pelanggan'),
             'pembacaan_meter' => $this->post('pembacaan_meter'),
             'tgl_kunjungan' => $this->post('tgl_kunjungan'),
@@ -235,6 +242,44 @@ class Kunjungan extends RestController
             $this->response([
                 'status' => '404',
                 'message' => 'Terjadi Kesalahan!'
+            ], 404);
+        }
+    }
+
+
+    public function last_kunjungan_get()
+    {
+
+        $id_user = $this->get('id_pengguna');
+        $id_kunjungan = $this->get('id_kunjungan');
+
+        $option = array(
+            'select'    => 'MAX(riwayat_kunjungan.tgl_kunjungan) tgl_kunjungan',
+            'table'     => 'pengguna',
+            'join'      => array(
+                array('riwayat_kunjungan' => 'riwayat_kunjungan.id_pengguna = pengguna.id_pengguna'),
+                array('kunjungan' => 'riwayat_kunjungan.id_kunjungan = kunjungan.id_kunjungan')
+            ),
+            'where'     => 'riwayat_kunjungan.id_pengguna = ' . $id_user . ' AND riwayat_kunjungan.id_kunjungan = ' . $id_kunjungan,
+        );
+
+        $data = $this->MCore->join_table($option)->row_array();
+
+
+        // Check if the users data store contains users
+        if ($data) {
+            // Set the response and exit
+            $this->response([
+                'status' => true,
+                'message' => 'Berhasil',
+                'data'  => $data
+            ], 200);
+        } else {
+            // Set the response and exit
+            $this->response([
+                'status' => false,
+                'message' => 'Tidak ada data',
+                'data' => NULL
             ], 404);
         }
     }

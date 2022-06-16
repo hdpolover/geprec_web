@@ -24,7 +24,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |
 */
 $config['base_url'] = "http" . ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") ? "s" : "") . "://" . $_SERVER['HTTP_HOST'] . str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']);
-
+$config['assets'] = $config['base_url'].'assets/';
+$config['css'] = $config['assets'].'css/';
+$config['fonts'] = $config['assets'].'fonts/';
+$config['img'] = $config['assets'].'img/';
+$config['js'] = $config['assets'].'js/';
+$config['sass'] = $config['assets'].'sass/';
+$config['vendor'] = $config['assets'].'vendor/';
+$config['upload'] = $config['base_url'].'upload/';
+$config['upload_foto'] = $config['upload'].'foto/';
 /*
 |--------------------------------------------------------------------------
 | Index File
