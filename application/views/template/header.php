@@ -109,6 +109,18 @@
             });
         }
     </script>
+
+    <script>
+        $(document).ready(function() {
+            var nav_active = '<?= $nav_id; ?>';
+            $("#" + nav_active).parent().addClass("active");
+            if ($("#" + nav_active).parents('.collapse').length == 1) {
+                $("#" + nav_active).addClass("active");
+                // $("#" + nav_active).parents('.collapse').addClass('show');
+                $("#" + nav_active).parents('.collapse').parent().addClass('active');
+            }
+        });
+    </script>
 </head>
 
 <body>
@@ -242,19 +254,19 @@
                     </div>
                     <ul class="nav nav-primary">
                         <li class="nav-item">
-                            <a href="<?= base_url('Dashboard') ?>">
+                            <a href="<?= base_url('Dashboard') ?>" id="nav_dashboard">
                                 <i class="fas fa-tachometer-alt"></i>
                                 <p>Dashboard</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="<?= base_url('Riwayat') ?>">
+                            <a href="<?= base_url('Riwayat') ?>" id="nav_riwayat">
                                 <i class="fas fa-history"></i>
                                 <p>Riwayat</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="<?= base_url('Pengguna') ?>">
+                            <a href="<?= base_url('Pengguna') ?>" id="nav_pengguna">
                                 <i class="fas fa-users"></i>
                                 <p>Pengguna</p>
                             </a>

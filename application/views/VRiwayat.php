@@ -24,6 +24,31 @@
             </div>
             <div class="row">
                 <div class="col-md-12">
+                    <!-- Modal -->
+                    <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header no-bd">
+                                    <h5 class="modal-title">
+                                        <span class="fw-mediumbold">
+                                            Detail</span>
+                                        <span class="fw-light">
+                                            Riwayat Kunjungan
+                                        </span>
+                                    </h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div id="content"></div>
+                                </div>
+                                <div class="modal-footer no-bd">
+                                    <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="card">
                         <div class="card-header">
                             <div class="d-flex align-items-center">
@@ -36,9 +61,10 @@
                                     <thead>
                                         <tr>
                                             <th>No</th>
-                                            <th>Nama</th>
-                                            <th>Akun</th>
-                                            <th>Status</th>
+                                            <th>Nama Kunjungan</th>
+                                            <th>Nomor Pelanggan</th>
+                                            <th>Nomor Meteran</th>
+                                            <th>Nama Petugas</th>
                                             <th>#</th>
                                         </tr>
                                     </thead>
@@ -57,72 +83,15 @@
     <script>
         $(document).ready(function() {
 
-            $(function() {
-                bsCustomFileInput.init();
-            });
-
             setDataTable('#table-data', '');
 
-            $('#btn-cancel').click(function() {
-                $('#form-data').find('input.form-control').val('');
-
-                $('#foto').next('label').html('Pilih Foto');
-                $("#foto").val('');
-                document.getElementById("image-preview").src = "<?= config_item('assets') ?>img/undraw_posting_photo.svg";
-            });
-
-            $('#btn-cancel').click();
-        }).on('submit', '#form-data', function(e) {
-            e.preventDefault();
-            var b = $('#btn-save'),
-                i = b.find('i'),
-                cls = i.attr('class');
-
-            var dt = new FormData();
-
-            dt.append('foto', $('input#foto')[0].files[0]);
-            dt.append('id', $('input#id').val());
-            dt.append('nama', $('input#nama').val());
-            dt.append('username', $('input#username').val());
-            dt.append('password', $('input#password').val());
-
-            $.ajax({
-                type: 'POST',
-                url: '<?= base_url('Pengguna/save') ?>',
-                cache: false,
-                contentType: false,
-                processData: false,
-                data: dt,
-                dataType: 'JSON',
-                // async: false,
-                beforeSend: function() {
-                    b.attr("disabled", true);
-                    i.removeClass().addClass('fa fa-spin fa-spinner');
-                },
-                success: function(r) {
-                    if (r.status) {
-                        setDataTable('#table-data', r.tbody);
-                        sweetMsg('success', r.message);
-                        $('#btn-cancel').trigger('click');
-                    } else {
-                        sweetMsg('error', r.message);
-                    }
-                    b.removeAttr("disabled");
-                    i.removeClass().addClass(cls);
-                },
-                error: function(e) {
-                    sweetMsg('error', 'Terjadi kesalahan!');
-                    b.removeAttr("disabled");
-                    i.removeClass().addClass(cls);
-                }
-            });
-        }).on('click', '#btn-edit', function() {
+        }).on('click', '#btn-detail', function() {
             var b = $(this),
                 i = b.find('i'),
                 cls = i.attr('class');
             $.ajax({
                 type: 'POST',
-                url: '<?= base_url('Pengguna/edit') ?>/' + b.data('id'),
+                url: '<?= base_url('Riwayat/edit') ?>/' + b.data('id'),
                 dataType: 'JSON',
                 async: false,
                 done: function(r) {},
@@ -132,136 +101,13 @@
                 success: function(r) {
                     i.removeClass().addClass(cls);
 
-                    $('#form-data').find('#id').val(r.id_pengguna);
-                    $('#form-data').find('#nama').val(r.nama);
-                    $('#form-data').find('#username').val(r.username);
-                    $('#form-data').find('#password').val(r.password);
-
-                    if ((r.foto_pengguna)) {
-                        $('#form-data').find("#image-preview").attr("src", r.foto_pengguna);
-                    }
-
+                    $('#detailModal').modal('show');
+                    $('#content').html(r.data);
                 },
 
                 error: function(e) {
                     sweetMsg('error', 'Terjadi kesalahan!');
                     i.removeClass().addClass(cls);
-                }
-            });
-        }).on('click', '#btn-aktif', function() {
-            var b = $(this),
-                i = b.find('i'),
-                cls = i.attr('class');
-            const swalWithBootstrapButtons = Swal.mixin({
-                customClass: {
-                    confirmButton: 'btn btn-success m-2',
-                    cancelButton: 'btn btn-secondary'
-                },
-                buttonsStyling: false
-            });
-
-            swalWithBootstrapButtons.fire({
-                text: "Apakah anda yakin akan mengaktifkan data berikut?",
-                icon: 'warning',
-                showCancelButton: true,
-                cancelButtonText: 'Batal',
-                confirmButtonText: 'Ya',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        type: 'POST',
-                        url: '<?= base_url('Pengguna/aktif') ?>/' + b.data('id'),
-                        dataType: 'JSON',
-                        // async: false,
-                        done: function(r) {},
-                        beforeSend: function() {
-                            i.removeClass().addClass('fa fa-spin fa-spinner');
-                        },
-                        success: function(r) {
-                            if (r.status) {
-                                Swal.fire(
-                                    '',
-                                    r.message,
-                                    'success'
-                                )
-                                setDataTable('#table-data', r.tbody);
-                            } else {
-                                Swal.fire(
-                                    '',
-                                    r.message,
-                                    'error'
-                                )
-                            }
-                            i.removeClass().addClass(cls);
-                        },
-                        error: function(e) {
-                            Swal.fire(
-                                'Error!',
-                                'Terjadi kesalahan!!',
-                                'error'
-                            )
-                            i.removeClass().addClass(cls);
-                        }
-                    });
-                }
-            });
-        }).on('click', '#btn-nonaktif', function() {
-            var b = $(this),
-                i = b.find('i'),
-                cls = i.attr('class');
-            const swalWithBootstrapButtons = Swal.mixin({
-                customClass: {
-                    confirmButton: 'btn btn-danger m-2',
-                    cancelButton: 'btn btn-secondary'
-                },
-                buttonsStyling: false
-            });
-
-            swalWithBootstrapButtons.fire({
-                text: "Apakah anda yakin akan menghapus data berikut?",
-                icon: 'warning',
-                showCancelButton: true,
-                cancelButtonText: 'Batal',
-                confirmButtonText: 'Hapus',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        type: 'POST',
-                        url: '<?= base_url('Pengguna/nonaktifkan') ?>/' + b.data('id'),
-                        dataType: 'JSON',
-                        // async: false,
-                        done: function(r) {},
-                        beforeSend: function() {
-                            i.removeClass().addClass('fa fa-spin fa-spinner');
-                        },
-                        success: function(r) {
-                            if (r.status) {
-                                Swal.fire(
-                                    '',
-                                    r.message,
-                                    'success'
-                                )
-                                setDataTable('#table-data', r.tbody);
-                            } else {
-                                Swal.fire(
-                                    '',
-                                    r.message,
-                                    'error'
-                                )
-                            }
-                            i.removeClass().addClass(cls);
-                        },
-                        error: function(e) {
-                            Swal.fire(
-                                'Error!',
-                                'Terjadi kesalahan!!',
-                                'error'
-                            )
-                            i.removeClass().addClass(cls);
-                        }
-                    });
                 }
             });
         });
@@ -297,13 +143,15 @@
                     "width": "25%",
                 }, {
                     "targets": [3],
-                    "className": "text-center",
-                    "width": "10%",
-                    "orderable": false,
+                    "width": "20%",
                 }, {
                     "targets": [4],
                     "className": "text-center",
-                    "width": "20%",
+                    "width": "10%",
+                }, {
+                    "targets": [5],
+                    "className": "text-center",
+                    "width": "10%",
                     "orderable": false,
                 }],
             });
