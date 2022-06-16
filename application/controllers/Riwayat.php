@@ -14,18 +14,51 @@ class Riwayat extends CI_Controller
         $data = [
             'title' => 'Data Riwayat',
             'nav_id' => 'nav_riwayat',
-            'tbody' => $this->list_(),
+            'opt_nama' => $this->opt_nama(),
             'js' => array(
                 'plugin/datatables/datatables.min.js',
+                'plugin/moment/moment.min.js',
+                'plugin/datepicker/tempusdominus-bootstrap-4.js',
+                'plugin/daterangepicker/daterangepicker.js',
+                'plugin/select2/select2.full.min.js',
+            ),
+            'css' => array(
+                'plugin/datepicker/tempusdominus-bootstrap-4.css',
+                'plugin/daterangepicker/daterangepicker.css',
+                'plugin/select2/select2.min.css',
             )
         ];
 
         $this->template->view('VRiwayat', $data);
     }
 
-
-    private function list_()
+    private function opt_nama()
     {
+
+        $data  = $this->MCore->list_data('pengguna', 'status');
+        // $opt = "";
+        $opt = '<option value="">Pilih Nama</option>';
+        foreach ($data->result_array() as $value) {
+            $opt .= '<option value="' . $value['id_pengguna'] . '">' . $value['nama'] . '</option>';
+        }
+        return $opt;
+    }
+
+    public function list_()
+    {
+        $tanggal = $this->input->get('filter_tanggal');
+        $explode = explode(" ", $tanggal);
+
+        $tgl_awal = date("Y-m-d", strtotime(implode('-', (explode('/', $explode[0])))));
+        $tgl_akhir =  date("Y-m-d", strtotime(implode('-', (explode('/', $explode[2])))));
+
+        $filter['tgl_kunjungan >='] = $tgl_awal;
+        $filter['tgl_kunjungan <='] = $tgl_akhir;
+
+
+        $nama = $this->input->get('filter_nama');
+        $filter['riwayat_kunjungan.id_pengguna'] = $nama;
+
         $option = array(
             'select'    => 'riwayat_kunjungan.id_riwayat_kunjungan, riwayat_kunjungan.foto_meteran, riwayat_kunjungan.foto_selfie, pengguna.nama, 
             riwayat_kunjungan.id_gas_pelanggan, riwayat_kunjungan.pembacaan_meter, riwayat_kunjungan.tgl_kunjungan, kunjungan.*',
@@ -34,34 +67,43 @@ class Riwayat extends CI_Controller
                 array('pengguna' => 'riwayat_kunjungan.id_pengguna = pengguna.id_pengguna'),
                 array('kunjungan' => 'riwayat_kunjungan.id_kunjungan = kunjungan.id_kunjungan')
             ),
+            'where'     => array_filter($filter),
+            'column_order' => array(null, 'nama_kunjungan', 'nomor_pelanggan', 'nomor_meteran', 'nama', 'tgl_kunjungan', null),
+            'column_search' => array('nama_kunjungan', 'nomor_pelanggan', 'nomor_meteran', 'nama', 'tgl_kunjungan'),
             'order'     => array('riwayat_kunjungan.tgl_kunjungan' => 'DESC')
         );
 
-        $data = $this->MCore->join_table($option)->result_array();
+        $list_data = $this->MCore->get_datatables($option);
 
-        $no = 1;
-        ob_start();
-        foreach ($data as $value) {
+        header('Content-Type: application/json');
+        $data = array();
+        $no = $this->input->post('start');
+        foreach ($list_data as $value) {
 
-?>
-            <tr>
-                <td class="text-center"><?= $no ?></td>
-                <td><?= $value['nama_kunjungan'] ?></td>
-                <td><?= $value['nomor_pelanggan'] ?></td>
-                <td><?= $value['nomor_meteran'] ?></td>
-                <td><?= $value['nama'] ?></td>
-                <td class="text-center">
-                    <button id="btn-detail" type="button" data-toggle="tooltip" data-id="<?= $value['id_riwayat_kunjungan'] ?>" title="" class="btn btn-link btn-simple-primary btn-lg" data-original-title="Detail">
-                        <i class="fa fa-ellipsis-h"></i>
-                    </button>
-                </td>
-            </tr>
-        <?php
             $no++;
+            $button = '<button id="btn-detail" type="button" data-toggle="tooltip" data-id="' . $value->id_riwayat_kunjungan . '" title="" class="btn btn-link btn-simple-primary btn-lg" data-original-title="Detail">
+            <i class="fa fa-ellipsis-h"></i>
+        </button>';
+?>
+        <?php
+            $row = array();
+            $row[] = $no;
+            $row[] = $value->nama_kunjungan;
+            $row[] = $value->nomor_pelanggan;
+            $row[] = $value->nomor_meteran;
+            $row[] = $value->nama;
+            $row[] = format_indo($value->tgl_kunjungan);
+            $row[] =  $button;
+            $data[] = $row;
         }
-        $tbody = ob_get_contents();
-        ob_clean();
-        return $tbody;
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->MCore->count_all('riwayat_kunjungan'),
+            "recordsFiltered" => $this->MCore->count_filtered($option),
+            "data" => array_values($data),
+        );
+        //output to json format
+        $this->output->set_output(json_encode($output));
     }
 
     public function edit($id = 0)
