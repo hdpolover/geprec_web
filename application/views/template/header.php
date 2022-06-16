@@ -210,7 +210,7 @@
                                             <div class="avatar-lg"><img src="<?= $this->session->userdata('foto_admin') ?>" alt="image profile" class="avatar-img rounded"></div>
                                             <div class="u-text">
                                                 <h4><?= $this->session->userdata('username'); ?></h4>
-                                                <p class="text-muted"><?= $this->session->userdata('nama'); ?></p><a href="profile.html" class="btn btn-xs btn-secondary btn-sm">View Profile</a>
+                                                <p class="text-muted"><?= $this->session->userdata('nama'); ?></p>
                                             </div>
                                         </div>
                                     </li>
@@ -245,6 +245,12 @@
                             <a href="<?= base_url('Dashboard') ?>">
                                 <i class="fas fa-tachometer-alt"></i>
                                 <p>Dashboard</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('Riwayat') ?>">
+                                <i class="fas fa-history"></i>
+                                <p>Riwayat</p>
                             </a>
                         </li>
                         <li class="nav-item">
