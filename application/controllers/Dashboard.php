@@ -11,6 +11,7 @@ class Dashboard extends CI_Controller {
 
 		$data = array(
 			'title' => 'Dashboard',
+			'nav_id' => 'nav_dashboard',
 		);
 		
 		$this->template->view('VDashboard', $data);
