@@ -61,7 +61,7 @@ class Riwayat extends CI_Controller
 
         $option = array(
             'select'    => 'riwayat_kunjungan.id_riwayat_kunjungan, riwayat_kunjungan.foto_meteran, riwayat_kunjungan.foto_selfie, pengguna.nama, 
-            riwayat_kunjungan.id_gas_pelanggan, riwayat_kunjungan.pembacaan_meter, riwayat_kunjungan.tgl_kunjungan, kunjungan.*',
+            riwayat_kunjungan.id_gas_pelanggan, riwayat_kunjungan.pembacaan_meter, riwayat_kunjungan.tgl_kunjungan,riwayat_kunjungan.status rstatus, kunjungan.*',
             'table'     => 'riwayat_kunjungan',
             'join'      => array(
                 array('pengguna' => 'riwayat_kunjungan.id_pengguna = pengguna.id_pengguna'),
@@ -84,13 +84,19 @@ class Riwayat extends CI_Controller
             $button = '<button id="btn-detail" type="button" data-toggle="tooltip" data-id="' . $value->id_riwayat_kunjungan . '" title="" class="btn btn-link btn-simple-primary btn-lg" data-original-title="Detail">
             <i class="fa fa-ellipsis-h"></i>
         </button>';
-        if ($value->status == 0) {
-            $status = '<span class="badge badge-warning">Menunggu</span>';
-        } else if($value->status == 1) {
-            $status = '<span class="badge badge-primary">Diterima</span>';
-        } else if($value->status == 2){
-            $status = '<span class="badge badge-danger">Ditolak</span>';
-        }
+            if ($value->rstatus == 0) {
+                $status = '<span class="badge badge-warning">Menunggu</span>';
+                $button .= '<button id="btn-aktif" type="button" data-toggle="tooltip" data-id="' . $value->id_riwayat_kunjungan . '" title="" class="btn btn-link btn-simple-primary btn-lg" data-original-title="Diterima">
+                <i class="fa fa-check"></i>
+            </button>
+            <button id="btn-nonaktif" type="button" data-toggle="tooltip" data-id="' . $value->id_riwayat_kunjungan . '" title="" class="btn btn-link btn-simple-primary btn-lg" data-original-title="Ditolak">
+                <i class="fa fa-times text-danger"></i>
+            </button>';
+            } else if ($value->rstatus == 1) {
+                $status = '<span class="badge badge-primary">Diterima</span>';
+            } else if ($value->rstatus == 2) {
+                $status = '<span class="badge badge-danger">Ditolak</span>';
+            }
 ?>
         <?php
             $row = array();
@@ -118,7 +124,7 @@ class Riwayat extends CI_Controller
     {
         $option = array(
             'select'    => 'riwayat_kunjungan.foto_meteran, riwayat_kunjungan.foto_selfie, 
-            riwayat_kunjungan.id_gas_pelanggan, riwayat_kunjungan.pembacaan_meter, riwayat_kunjungan.tgl_kunjungan, kunjungan.*',
+            riwayat_kunjungan.id_gas_pelanggan, riwayat_kunjungan.pembacaan_meter, riwayat_kunjungan.tgl_kunjungan, riwayat_kunjungan.status rstatus, kunjungan.*',
             'table'     => 'riwayat_kunjungan',
             'join'      => array(
                 array('pengguna' => 'riwayat_kunjungan.id_pengguna = pengguna.id_pengguna'),
@@ -131,6 +137,23 @@ class Riwayat extends CI_Controller
 
         ob_start();
         ?>
+        <div class="row">
+            <div class="col-4">
+                <span class="h3">Status</span>
+            </div>
+            <div class="">
+                <?php
+                if ($data['rstatus'] == 0) {
+                    echo  '<span class="badge badge-warning">Menunggu</span>';
+                } else if ($data['rstatus'] == 1) {
+                    echo  '<span class="badge badge-primary">Diterima</span>';
+                } else if ($data['rstatus'] == 2) {
+                    echo '<span class="badge badge-danger">Ditolak</span>';
+                }
+                ?>
+            </div>
+        </div>
+        <hr>
         <h4>Data Kunjungan</h4>
         <div class="row">
             <div class="col-4">
@@ -230,5 +253,31 @@ class Riwayat extends CI_Controller
         $body = ob_get_contents();
         ob_clean();
         echo json_encode(array('data' => $body));
+    }
+
+    public function aktif($id = 0)
+    {
+        $sql = $this->MCore->save_data('riwayat_kunjungan', array('status' => 1), true, array('id_riwayat_kunjungan' => $id));
+
+        $arr['status'] = $sql;
+        if ($sql) {
+            $arr['message'] = 'Data berhasil diaktifkan';
+        } else {
+            $arr['message'] = 'Data gagal diaktifkan';
+        }
+        echo json_encode($arr);
+    }
+
+    public function nonaktif($id = 0)
+    {
+        $sql = $this->MCore->save_data('riwayat_kunjungan', array('status' => 2), true, array('id_riwayat_kunjungan' => $id));
+
+        $arr['status'] = $sql;
+        if ($sql) {
+            $arr['message'] = 'Data berhasil dinonaktifkan';
+        } else {
+            $arr['message'] = 'Data gagal dinonaktifkan';
+        }
+        echo json_encode($arr);
     }
 }

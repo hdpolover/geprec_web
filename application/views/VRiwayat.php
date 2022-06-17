@@ -159,6 +159,122 @@
             e.preventDefault();
             var input = $('#search-data').serialize();
             window.open('<?php echo base_url('Riwayat/export_excel/') ?>?' + input, '_blank');
+        }).on('click', '#btn-aktif', function() {
+            var b = $(this),
+                i = b.find('i'),
+                cls = i.attr('class');
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success m-2',
+                    cancelButton: 'btn btn-secondary'
+                },
+                buttonsStyling: false
+            });
+
+            swalWithBootstrapButtons.fire({
+                text: "Apakah anda yakin akan menerima data berikut?",
+                icon: 'warning',
+                showCancelButton: true,
+                cancelButtonText: 'Batal',
+                confirmButtonText: 'Ya',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '<?= base_url('riwayat/aktif') ?>/' + b.data('id'),
+                        dataType: 'JSON',
+                        // async: false,
+                        done: function(r) {},
+                        beforeSend: function() {
+                            i.removeClass().addClass('fa fa-spin fa-spinner');
+                        },
+                        success: function(r) {
+                            if (r.status) {
+                                Swal.fire(
+                                    '',
+                                    r.message,
+                                    'success'
+                                )
+                                setDataTable('#table-data');
+                            } else {
+                                Swal.fire(
+                                    '',
+                                    r.message,
+                                    'error'
+                                )
+                            }
+                            i.removeClass().addClass(cls);
+                        },
+                        error: function(e) {
+                            Swal.fire(
+                                'Error!',
+                                'Terjadi kesalahan!!',
+                                'error'
+                            )
+                            i.removeClass().addClass(cls);
+                        }
+                    });
+                }
+            });
+        }).on('click', '#btn-nonaktif', function() {
+            var b = $(this),
+                i = b.find('i'),
+                cls = i.attr('class');
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-danger m-2',
+                    cancelButton: 'btn btn-secondary'
+                },
+                buttonsStyling: false
+            });
+
+            swalWithBootstrapButtons.fire({
+                text: "Apakah anda yakin akan menolak data berikut?",
+                icon: 'warning',
+                showCancelButton: true,
+                cancelButtonText: 'Batal',
+                confirmButtonText: 'Tolak',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '<?= base_url('riwayat/nonaktif') ?>/' + b.data('id'),
+                        dataType: 'JSON',
+                        // async: false,
+                        done: function(r) {},
+                        beforeSend: function() {
+                            i.removeClass().addClass('fa fa-spin fa-spinner');
+                        },
+                        success: function(r) {
+                            if (r.status) {
+                                Swal.fire(
+                                    '',
+                                    r.message,
+                                    'success'
+                                )
+                                setDataTable('#table-data');
+                            } else {
+                                Swal.fire(
+                                    '',
+                                    r.message,
+                                    'error'
+                                )
+                            }
+                            i.removeClass().addClass(cls);
+                        },
+                        error: function(e) {
+                            Swal.fire(
+                                'Error!',
+                                'Terjadi kesalahan!!',
+                                'error'
+                            )
+                            i.removeClass().addClass(cls);
+                        }
+                    });
+                }
+            });
         });
 
         function setDataTable(a, tbody = '') {
