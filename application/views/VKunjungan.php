@@ -90,7 +90,7 @@
                             </div>
                             <div class="card-body">
                                 <input type="hidden" name="id" id="id">
-                                <p class="small">Create a new row using this form, make sure you fill them all</p>
+                                <p class="small">Silahkan isi semua form nya</p>
                                 <div class="row">
                                     <div class="col-sm-12">
                                         <div class="form-group form-group-default">

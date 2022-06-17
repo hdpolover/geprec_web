@@ -292,7 +292,7 @@ class Kunjungan extends CI_Controller
         <h4>Bukti Dokumen</h4>
         <div class="row">
             <div class="col">
-                <p>Foto Selfie</p>
+                <p>Foto Kunjungan</p>
                 <?php if ($data['foto_kunjungan']) { ?>
                     <img src="<?= $data['foto_kunjungan'] ?>" alt="tidak foto kunjungan" width="200px;">
                 <?php } else {
