@@ -28,6 +28,9 @@
                         <div class="card-header">
                             <div class="d-flex align-items-center">
                                 <h4 class="card-title">List Data</h4>
+                                <div class="form-group">
+                                    <button id="btn-export" type="button" class="btn btn-success btn-sm w-100"><i class="fa fa-file-excel"></i> Export Data</button>
+                                </div>
                             </div>
                         </div>
                         <div class="card-body">
@@ -39,6 +42,7 @@
                                             <th>Status</th>
                                             <th>Nama</th>
                                             <th>Akun</th>
+                                            <th>Foto</th>
                                             <th>#</th>
                                         </tr>
                                     </thead>
@@ -317,6 +321,9 @@
                     });
                 }
             });
+        }).on('click', '#btn-export', function(e) {
+            e.preventDefault();
+            window.open('<?php echo base_url('Pengguna/export_excel/') ?>', '_blank');
         });
 
         function setDataTable(a, tbody = '') {

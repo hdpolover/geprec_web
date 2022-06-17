@@ -56,6 +56,9 @@
                         <div class="card-header">
                             <div class="d-flex align-items-center">
                                 <h4 class="card-title">List Data</h4>
+                                <div class="form-group">
+                                    <button id="btn-export" type="button" class="btn btn-success btn-sm w-100"><i class="fa fa-file-excel"></i> Export Data</button>
+                                </div>
                             </div>
                         </div>
                         <div class="card-body">
@@ -439,6 +442,13 @@
                     });
                 }
             });
+        }).on('click', '#btn-export', function(e) {
+            e.preventDefault();
+            window.open('<?php echo base_url('Kunjungan/export_excel/') ?>', '_blank');
+        }).on('click', '#btn-export-assign', function(e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            window.open('<?php echo base_url('Kunjungan/export_excel_assign/') ?>' + id, '_blank');
         });
 
         function setDataTable(a, tbody = '') {

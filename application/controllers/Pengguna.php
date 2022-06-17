@@ -59,6 +59,7 @@ class Pengguna extends CI_Controller
                 <td><?= $status ?></td>
                 <td><?= $value['nama'] ?></td>
                 <td><?= $akun ?></td>
+                <td><img src="<?= $value['foto_pengguna'] ?>" alt="tidak ada" width="50px;"></td>
                 <td class="text-center">
                     <?= $button; ?>
                 </td>
@@ -221,6 +222,135 @@ class Pengguna extends CI_Controller
             $arr['message'] = 'Data gagal disimpan';
         }
         echo json_encode($arr);
+    }
+
+    public function export_excel()
+    {
+        //unlimited
+        ini_set('max_execution_time', 0);
+        // load excel library
+        $this->load->library('excel');
+
+        $listInfo = $this->MCore->list_data('pengguna')->result();
+
+        // echo "<pre>";
+        // print_r($listInfo);
+        // die();
+
+        // excdel
+        $objPHPExcel = new PHPExcel();
+        $objPHPExcel->setActiveSheetIndex(0);
+
+        //set logo
+        $objDrawing = new PHPExcel_Worksheet_Drawing();
+        $objDrawing->setName('Logo geprec');
+        $objDrawing->setPath('./assets/img/GEPREC.png');
+        $objDrawing->setCoordinates('A1');
+        //setOffsetX works properly
+        $objDrawing->setOffsetX(10);
+        $objDrawing->setOffsetY(1);
+        //set width, height
+        $objDrawing->setWidth(50);
+        $objDrawing->setHeight(50);
+        $objDrawing->setWorksheet($objPHPExcel->getActiveSheet());
+
+        $objPHPExcel->getActiveSheet()->getRowDimension('1')->setRowHeight(40);
+
+        // set header
+        $objPHPExcel->getActiveSheet()->SetCellValue('A5', 'No');
+        $objPHPExcel->getActiveSheet()->SetCellValue('B5', 'Status');
+        $objPHPExcel->getActiveSheet()->SetCellValue('C5', 'Nama');
+        $objPHPExcel->getActiveSheet()->SetCellValue('D5', 'Username');
+        $objPHPExcel->getActiveSheet()->SetCellValue('E5', 'Password');
+        $objPHPExcel->getActiveSheet()->SetCellValue('F5', 'Foto');
+        $objPHPExcel->getActiveSheet()->getRowDimension('5')->setRowHeight(20);
+
+        $judul = 'Data Pengguna';
+
+        $objPHPExcel->getActiveSheet()->SetCellValue('A2', $judul);
+        $objPHPExcel->getActiveSheet()->getStyle("A2")->getFont()->setSize(18);
+        $objPHPExcel->getActiveSheet()->getStyle("A2")->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+        $objPHPExcel->getActiveSheet()->mergeCells('A2:C2');
+
+        $objPHPExcel->getActiveSheet()->SetCellValue('A3', "Tanggal : ");
+        $objPHPExcel->getActiveSheet()->SetCellValue('B3', date('d-m-Y H:i:s'));
+        // set Row
+        $rowCount = 6;
+        $no = 1;
+
+        foreach ($listInfo as $list) {
+
+            $objPHPExcel->getActiveSheet()->SetCellValue('A' . $rowCount, $no);
+            switch ($list->status) {
+                case 0:
+                    $status = 'Tidak Aktif';
+                    break;
+                case 1:
+                    $status = "Aktif";
+                    break;
+            }
+            $objPHPExcel->getActiveSheet()->SetCellValue('B' . $rowCount, $status);
+            $objPHPExcel->getActiveSheet()->SetCellValue('C' . $rowCount, $list->nama);
+            $objPHPExcel->getActiveSheet()->SetCellValue('D' . $rowCount, $list->username);
+            $objPHPExcel->getActiveSheet()->SetCellValue('E' . $rowCount, $list->password);
+            if ($list->foto_pengguna) {
+                $objPHPExcel->getActiveSheet()->getCell('F' . $rowCount)->getHyperlink()->setUrl($list->foto_pengguna);
+                $objPHPExcel->getActiveSheet()->SetCellValue('F' . $rowCount, $list->foto_pengguna);
+            } else {
+                $objPHPExcel->getActiveSheet()->SetCellValue('F' . $rowCount, "Tidak ada foto");
+            }
+
+            $no++;
+            $rowCount++;
+        }
+
+        // SIZE WIDTH
+        $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setWidth(12);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setWidth(30);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setWidth(20);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setWidth(20);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setWidth(40);
+
+        // TABEL
+        $styleArray = array(
+            'borders' => array(
+                'allborders' => array(
+                    'style' => PHPExcel_Style_Border::BORDER_THIN
+                ),
+            )
+        );
+        $objPHPExcel->getActiveSheet()->getStyle("A5:F" . ($rowCount - 1))->applyFromArray($styleArray);
+
+        // ini untuk style header
+        $from = "A5"; // or any value
+        $to =  "F5"; // or any value
+        //style
+        $style_cell = array(
+            'alignment' => array(
+                'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+                'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+            ),
+            'fill' => array(
+                'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                'color' => array('rgb' => '1269db')
+            ),
+            'font' => [
+                'size' => 12,
+                'bold' => true,
+                'color' => array('rgb' => 'FFFFFF')
+            ]
+        );
+        $objPHPExcel->getActiveSheet()->getStyle("$from:$to")->applyFromArray($style_cell);
+
+        // create file name
+        $filename = $judul . ' #' . date("YmdHis") . ".xlsx";
+
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save('php://output');
     }
 
     public function aktif($id = 0)

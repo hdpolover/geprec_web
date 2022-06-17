@@ -87,11 +87,11 @@
                                                     <button id="btn-search" type="submit" class="btn btn-primary btn-sm w-100"><i class="fa fa-search"></i> Cari</button>
                                                 </div>
                                             </div>
-                                            <!-- <div class="col-lg-4 col-md-4 col-sm-12">
+                                            <div class="col-lg-4 col-md-4 col-sm-12">
                                                 <div class="form-group">
                                                     <button id="btn-export" type="button" class="btn btn-success btn-sm w-100"><i class="fa fa-file-excel"></i> Export Data</button>
                                                 </div>
-                                            </div> -->
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
