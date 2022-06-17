@@ -27,26 +27,29 @@
                     <!-- Modal -->
                     <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-hidden="true">
                         <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header no-bd">
-                                    <h5 class="modal-title">
-                                        <span class="fw-mediumbold">
-                                            Detail</span>
-                                        <span class="fw-light">
-                                            Riwayat Kunjungan
-                                        </span>
-                                    </h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
+                            <form id="form-assign">
+                                <div class="modal-content">
+                                    <div class="modal-header no-bd">
+                                        <h5 class="modal-title">
+                                            <span class="fw-mediumbold">
+                                                Detail</span>
+                                            <span class="fw-light">
+                                                Kunjungan
+                                            </span>
+                                        </h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div id="content"></div>
+                                    </div>
+                                    <div class="modal-footer no-bd">
+                                        <button type="submit" id="btn-save-assign" class="btn btn-primary"><i class="fa fa-save"></i> Simpan</button>
+                                        <button type="button" id="btn-batal" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+                                    </div>
                                 </div>
-                                <div class="modal-body">
-                                    <div id="content"></div>
-                                </div>
-                                <div class="modal-footer no-bd">
-                                    <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
-                                </div>
-                            </div>
+                            </form>
                         </div>
                     </div>
                     <div class="card">
@@ -194,7 +197,7 @@
             dt.append('catatan', $('textarea#catatan').val());
             dt.append('latitude', $('input#latitude').val());
             dt.append('longitude', $('input#longitude').val());
-           
+
             $.ajax({
                 type: 'POST',
                 url: '<?= base_url('Kunjungan/save') ?>',
@@ -258,6 +261,65 @@
 
                 error: function(e) {
                     sweetMsg('error', 'Terjadi kesalahan!');
+                    i.removeClass().addClass(cls);
+                }
+            });
+        }).on('click', '#btn-assign', function() {
+            var b = $(this),
+                i = b.find('i'),
+                cls = i.attr('class');
+            $.ajax({
+                type: 'POST',
+                url: '<?= base_url('Kunjungan/assign_pengguna') ?>/' + b.data('id'),
+                dataType: 'JSON',
+                async: false,
+                done: function(r) {},
+                beforeSend: function() {
+                    i.removeClass().addClass('fa fa-spin fa-spinner');
+                },
+                success: function(r) {
+                    i.removeClass().addClass(cls);
+
+                    $('#detailModal').modal('show');
+                    $('#content').html(r.body);
+
+                },
+
+                error: function(e) {
+                    sweetMsg('error', 'Terjadi kesalahan!');
+                    i.removeClass().addClass(cls);
+                }
+            });
+        }).on('submit', '#form-assign', function(e) {
+            e.preventDefault();
+            var b = $('#btn-save-assign'),
+                i = b.find('i'),
+                cls = i.attr('class');
+
+            $.ajax({
+                type: 'POST',
+                url: '<?= base_url('Kunjungan/save_assign') ?>',
+                data: $(this).serializeArray(),
+                dataType: 'JSON',
+                // async: false,
+                beforeSend: function() {
+                    b.attr("disabled", true);
+                    i.removeClass().addClass('fa fa-spin fa-spinner');
+                },
+                success: function(r) {
+                    if (r.status) {
+                        setDataTable('#table-data', r.tbody);
+                        sweetMsg('success', r.message);
+                        $('#btn-batal').trigger('click');
+                    } else {
+                        sweetMsg('error', r.message);
+                    }
+                    b.removeAttr("disabled");
+                    i.removeClass().addClass(cls);
+                },
+                error: function(e) {
+                    sweetMsg('error', 'Terjadi kesalahan!');
+                    b.removeAttr("disabled");
                     i.removeClass().addClass(cls);
                 }
             });
