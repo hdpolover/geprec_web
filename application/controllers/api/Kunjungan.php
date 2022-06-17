@@ -179,12 +179,12 @@ class Kunjungan extends RestController
             $type = explode(':', substr($file, 0, $pos))[1];
             $mime = explode('/', $type);
 
-            $pathImage = "./upload/foto/" . time() . "." . $mime[1];
+            $pathImage = "./upload/foto/" . "meteran_" . time() . "." . $mime[1];
             $file = substr($file, strpos($file, ',') + 1, strlen($file));
             $dataBase64 = base64_decode($file);
 
             if (file_put_contents($pathImage, $dataBase64)) {
-                $data['foto_meteran'] = base_url() . 'upload/foto/' . time() . "." . $mime[1];
+                $data['foto_meteran'] = base_url() . 'upload/foto/' . "meteran_" . time() . "." . $mime[1];
             } else {
                 // echo $error;
                 $this->response([
@@ -206,12 +206,12 @@ class Kunjungan extends RestController
             $type = explode(':', substr($file, 0, $pos))[1];
             $mime = explode('/', $type);
 
-            $pathImage = "./upload/foto/" . time() . "." . $mime[1];
+            $pathImage = "./upload/foto/" . "selfie_" . time() . "." . $mime[1];
             $file = substr($file, strpos($file, ',') + 1, strlen($file));
             $dataBase64 = base64_decode($file);
 
             if (file_put_contents($pathImage, $dataBase64)) {
-                $data['foto_selfie'] = base_url() . 'upload/foto/' . time() . "." . $mime[1];
+                $data['foto_selfie'] = base_url() . 'upload/foto/' . "selfie_"  . time() . "." . $mime[1];
             } else {
                 // echo $error;
                 $this->response([
