@@ -159,7 +159,7 @@ class Kunjungan extends RestController
     public function save_ngunjungi_post()
     {
         $data = array(
-            'id_pengguna' => $this->post('id_user'),
+            'id_pengguna' => $this->post('id_pegguna'),
             'id_kunjungan' => $this->post('id_kunjungan'),
             'id_gas_pelanggan' => $this->post('id_gas_pelanggan'),
             'pembacaan_meter' => $this->post('pembacaan_meter'),
