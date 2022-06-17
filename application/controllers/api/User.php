@@ -17,7 +17,7 @@ class User extends RestController
         $user = $this->get('username');
         $pass = $this->get('password');
         
-        $users = $this->MCore->get_data('pengguna', 'username = "' . $user . '" AND password ="' . $pass . '"')->result();
+        $users = $this->MCore->get_data('pengguna', 'username = "' . $user . '" AND password ="' . $pass . '" AND status = 1')->result();
 
         // Check if the users data store contains users
         if ($users) {

@@ -59,7 +59,7 @@
                         <div class="card-body">
                             <form id="search-data">
                                 <div class="row">
-                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="col-lg-8 col-md-8 col-sm-12">
                                         <div class="row">
                                             <div class="col-lg-6 col-md-6 col-sm-12">
                                                 <div class="form-group">
@@ -101,6 +101,7 @@
                                     <thead>
                                         <tr>
                                             <th>No</th>
+                                            <th>Status</th>
                                             <th>Nama Kunjungan</th>
                                             <th>Nomor Pelanggan</th>
                                             <th>Nomor Meteran</th>
@@ -214,6 +215,9 @@
                     },
                     {
                         "targets": 6,
+                    },
+                    {
+                        "targets": 7,
                         "orderable": false
                     },
                 ],

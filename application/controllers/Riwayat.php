@@ -68,7 +68,7 @@ class Riwayat extends CI_Controller
                 array('kunjungan' => 'riwayat_kunjungan.id_kunjungan = kunjungan.id_kunjungan')
             ),
             'where'     => array_filter($filter),
-            'column_order' => array(null, 'nama_kunjungan', 'nomor_pelanggan', 'nomor_meteran', 'nama', 'tgl_kunjungan', null),
+            'column_order' => array(null, null, 'nama_kunjungan', 'nomor_pelanggan', 'nomor_meteran', 'nama', 'tgl_kunjungan', null),
             'column_search' => array('nama_kunjungan', 'nomor_pelanggan', 'nomor_meteran', 'nama', 'tgl_kunjungan'),
             'order'     => array('riwayat_kunjungan.tgl_kunjungan' => 'DESC')
         );
@@ -84,10 +84,18 @@ class Riwayat extends CI_Controller
             $button = '<button id="btn-detail" type="button" data-toggle="tooltip" data-id="' . $value->id_riwayat_kunjungan . '" title="" class="btn btn-link btn-simple-primary btn-lg" data-original-title="Detail">
             <i class="fa fa-ellipsis-h"></i>
         </button>';
+        if ($value->status == 0) {
+            $status = '<span class="badge badge-warning">Menunggu</span>';
+        } else if($value->status == 1) {
+            $status = '<span class="badge badge-primary">Diterima</span>';
+        } else if($value->status == 2){
+            $status = '<span class="badge badge-danger">Ditolak</span>';
+        }
 ?>
         <?php
             $row = array();
             $row[] = $no;
+            $row[] = $status;
             $row[] = $value->nama_kunjungan;
             $row[] = $value->nomor_pelanggan;
             $row[] = $value->nomor_meteran;

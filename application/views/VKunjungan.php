@@ -24,6 +24,31 @@
             </div>
             <div class="row">
                 <div class="col-md-8">
+                    <!-- Modal -->
+                    <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header no-bd">
+                                    <h5 class="modal-title">
+                                        <span class="fw-mediumbold">
+                                            Detail</span>
+                                        <span class="fw-light">
+                                            Riwayat Kunjungan
+                                        </span>
+                                    </h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div id="content"></div>
+                                </div>
+                                <div class="modal-footer no-bd">
+                                    <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="card">
                         <div class="card-header">
                             <div class="d-flex align-items-center">
@@ -37,8 +62,10 @@
                                         <tr>
                                             <th>No</th>
                                             <th>Status</th>
-                                            <th>Nama</th>
-                                            <th>Akun</th>
+                                            <th>Nama Kunjungan</th>
+                                            <th>Nomor Pelanggan</th>
+                                            <th>Nomor Meteran</th>
+                                            <th>Alamat</th>
                                             <th>#</th>
                                         </tr>
                                     </thead>
@@ -64,20 +91,44 @@
                                 <div class="row">
                                     <div class="col-sm-12">
                                         <div class="form-group form-group-default">
-                                            <label>Nama</label>
-                                            <input id="nama" type="text" class="form-control" autocomplete="off">
+                                            <label>Nama Kunjungan</label>
+                                            <input id="nama_kunjungan" type="text" class="form-control" autocomplete="off">
                                         </div>
                                     </div>
                                     <div class="col-md-6 pr-0">
                                         <div class="form-group form-group-default">
-                                            <label>Username</label>
-                                            <input id="username" type="text" class="form-control" autocomplete="off">
+                                            <label>Nomor Pelanggan</label>
+                                            <input id="nomor_pelanggan" type="text" class="form-control" autocomplete="off">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group form-group-default">
-                                            <label>Password</label>
-                                            <input id="password" type="text" class="form-control" autocomplete="off">
+                                            <label>Nomor Meteran</label>
+                                            <input id="nomor_meteran" type="text" class="form-control" autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group  form-group-default">
+                                            <label for="alamat">Alamat</label>
+                                            <textarea class="form-control" id="alamat" rows="5"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group  form-group-default">
+                                            <label for="catatan">Catatan</label>
+                                            <textarea class="form-control" id="catatan" rows="5"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 pr-0">
+                                        <div class="form-group form-group-default">
+                                            <label>Latitude</label>
+                                            <input id="latitude" type="text" class="form-control" autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group form-group-default">
+                                            <label>Longitude</label>
+                                            <input id="longitude" type="text" class="form-control" autocomplete="off">
                                         </div>
                                     </div>
                                     <div class="col-md-12">
@@ -118,6 +169,7 @@
             $('#btn-cancel').click(function() {
                 $('#form-data').find('input#id').val('');
                 $('#form-data').find('input.form-control').val('');
+                $('#form-data').find('textarea').val('');
 
                 $('#foto').next('label').html('Pilih Foto');
                 $("#foto").val('');
@@ -135,13 +187,17 @@
 
             dt.append('foto', $('input#foto')[0].files[0]);
             dt.append('id', $('input#id').val());
-            dt.append('nama', $('input#nama').val());
-            dt.append('username', $('input#username').val());
-            dt.append('password', $('input#password').val());
-
+            dt.append('nama_kunjungan', $('input#nama_kunjungan').val());
+            dt.append('nomor_pelanggan', $('input#nomor_pelanggan').val());
+            dt.append('nomor_meteran', $('input#nomor_meteran').val());
+            dt.append('alamat', $('textarea#alamat').val());
+            dt.append('catatan', $('textarea#catatan').val());
+            dt.append('latitude', $('input#latitude').val());
+            dt.append('longitude', $('input#longitude').val());
+           
             $.ajax({
                 type: 'POST',
-                url: '<?= base_url('Pengguna/save') ?>',
+                url: '<?= base_url('Kunjungan/save') ?>',
                 cache: false,
                 contentType: false,
                 processData: false,
@@ -175,7 +231,7 @@
                 cls = i.attr('class');
             $.ajax({
                 type: 'POST',
-                url: '<?= base_url('Pengguna/edit') ?>/' + b.data('id'),
+                url: '<?= base_url('Kunjungan/edit') ?>/' + b.data('id'),
                 dataType: 'JSON',
                 async: false,
                 done: function(r) {},
@@ -185,13 +241,17 @@
                 success: function(r) {
                     i.removeClass().addClass(cls);
 
-                    $('#form-data').find('#id').val(r.id_pengguna);
-                    $('#form-data').find('#nama').val(r.nama);
-                    $('#form-data').find('#username').val(r.username);
-                    $('#form-data').find('#password').val(r.password);
+                    $('#form-data').find('#id').val(r.id_kunjungan);
+                    $('#form-data').find('#nama_kunjungan').val(r.nama_kunjungan);
+                    $('#form-data').find('#nomor_pelanggan').val(r.nomor_pelanggan);
+                    $('#form-data').find('#nomor_meteran').val(r.nomor_meteran);
+                    $('#form-data').find('#alamat').val(r.alamat);
+                    $('#form-data').find('#catatan').val(r.catatan);
+                    $('#form-data').find('#latitude').val(r.latitude);
+                    $('#form-data').find('#longitude').val(r.longitude);
 
-                    if ((r.foto_pengguna)) {
-                        $('#form-data').find("#image-preview").attr("src", r.foto_pengguna);
+                    if ((r.foto_kunjungan)) {
+                        $('#form-data').find("#image-preview").attr("src", r.foto_kunjungan);
                     }
 
                 },
@@ -224,7 +284,7 @@
                 if (result.isConfirmed) {
                     $.ajax({
                         type: 'POST',
-                        url: '<?= base_url('Pengguna/aktif') ?>/' + b.data('id'),
+                        url: '<?= base_url('Kunjungan/aktif') ?>/' + b.data('id'),
                         dataType: 'JSON',
                         // async: false,
                         done: function(r) {},
@@ -282,7 +342,7 @@
                 if (result.isConfirmed) {
                     $.ajax({
                         type: 'POST',
-                        url: '<?= base_url('Pengguna/nonaktif') ?>/' + b.data('id'),
+                        url: '<?= base_url('Kunjungan/nonaktif') ?>/' + b.data('id'),
                         dataType: 'JSON',
                         // async: false,
                         done: function(r) {},
@@ -329,10 +389,10 @@
             }
 
             $(a).DataTable({
-                "responsive": true,
+                // "responsive": true,
                 // "lengthChange": false,
                 // "autoWidth": false,
-                // "scrollX": true,
+                "scrollX": true,
                 // "scrollY": "400px",
                 "scrollCollapse": true,
                 "paging": true,
@@ -341,22 +401,27 @@
                 ],
                 "columnDefs": [{
                     "targets": [0],
-                    "width": "3%",
+                    "width": "20px",
                 }, {
                     "targets": [1],
-                    "className": "text-center",
-                    "width": "10%",
-                    "orderable": false,
+                    "width": "60px",
                 }, {
                     "targets": [2],
-                    "width": "25%",
+                    "width": "100px",
                 }, {
                     "targets": [3],
-                    "width": "32%",
+                    "width": "60px",
                 }, {
                     "targets": [4],
+                    "width": "60px",
+                }, {
+                    "targets": [5],
+                    "width": "100px",
+                    "orderable": false,
+                }, {
+                    "targets": [6],
                     "className": "text-center",
-                    "width": "20%",
+                    "width": "100px",
                     "orderable": false,
                 }],
             });

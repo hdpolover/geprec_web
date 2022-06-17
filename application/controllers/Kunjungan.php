@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Pengguna extends CI_Controller
+class Kunjungan extends CI_Controller
 {
 
     public function index()
@@ -12,8 +12,8 @@ class Pengguna extends CI_Controller
         }
 
         $data = [
-            'title' => 'Data Pengguna',
-            'nav_id' => 'nav_pengguna',
+            'title' => 'Data Kunjungan',
+            'nav_id' => 'nav_kunjungan',
             'tbody' => $this->list_(),
             'js' => array(
                 'plugin/datatables/datatables.min.js',
@@ -21,44 +21,46 @@ class Pengguna extends CI_Controller
             )
         ];
 
-        $this->template->view('VPengguna', $data);
+        $this->template->view('VKunjungan', $data);
     }
 
 
     private function list_()
     {
 
-        $data_pengguna = $this->MCore->list_data('pengguna');
+        $data = $this->MCore->list_data('kunjungan');
 
         $no = 1;
         ob_start();
-        foreach ($data_pengguna->result_array() as $value) {
+        foreach ($data->result_array() as $value) {
 
             $status = '<span class="badge badge-primary">Aktif</span>';
 
-            $button = '<button id="btn-edit" type="button" data-toggle="tooltip" data-id="' . $value['id_pengguna'] . '" title="" class="btn btn-link btn-simple-primary btn-lg" data-original-title="Edit">
+            $button = '<button id="btn-detail" type="button" data-toggle="tooltip" data-id="' . $value['id_kunjungan'] . '" title="" class="btn btn-link btn-simple-secondary btn-lg" data-original-title="Assign Petugas">
+            <i class="fa fa-sign-in-alt text-secondary"></i>
+            <button id="btn-edit" type="button" data-toggle="tooltip" data-id="' . $value['id_kunjungan'] . '" title="" class="btn btn-link btn-simple-primary btn-lg" data-original-title="Edit">
             <i class="fa fa-edit"></i>
         </button>';
             if ($value['status'] == 0) {
                 $status = '<span class="badge badge-danger">Tidak Aktif</span>';
                 $button .= '
-                <button id="btn-aktif" data-id="' . $value['id_pengguna'] . '" type="button" data-toggle="tooltip" title="" class="btn btn-link btn-simple-danger" data-original-title="Aktifkan">
+                <button id="btn-aktif" data-id="' . $value['id_kunjungan'] . '" type="button" data-toggle="tooltip" title="" class="btn btn-link btn-simple-danger" data-original-title="Aktifkan">
                     <i class="fa fa-check text-success"></i>
                 </button>';
             } else {
                 $button .= '
-                <button id="btn-nonaktif" data-id="' . $value['id_pengguna'] . '" type="button" data-toggle="tooltip" title="" class="btn btn-link btn-simple-danger" data-original-title="Nonaktifkan">
+                <button id="btn-nonaktif" data-id="' . $value['id_kunjungan'] . '" type="button" data-toggle="tooltip" title="" class="btn btn-link btn-simple-danger" data-original-title="Nonaktifkan">
                     <i class="fa fa-times text-danger"></i>
                 </button>';
             }
-            $akun = '<span><i class="fa fa-user"></i> ' . $value['username'] . ' <br> <i class="fa fa-key"></i> ' . $value['password'] . '</span>';
-
 ?>
             <tr>
                 <td class="text-center"><?= $no ?></td>
                 <td><?= $status ?></td>
-                <td><?= $value['nama'] ?></td>
-                <td><?= $akun ?></td>
+                <td><?= $value['nama_kunjungan'] ?></td>
+                <td><?= $value['nomor_pelanggan'] ?></td>
+                <td><?= $value['nomor_meteran'] ?></td>
+                <td><?= $value['alamat'] ?></td>
                 <td class="text-center">
                     <?= $button; ?>
                 </td>
@@ -73,7 +75,7 @@ class Pengguna extends CI_Controller
 
     public function edit($id = 0)
     {
-        $data = $this->MCore->get_data('pengguna', 'id_pengguna = ' . $id);
+        $data = $this->MCore->get_data('kunjungan', 'id_kunjungan = ' . $id);
 
         echo json_encode($data->row_array());
     }
@@ -83,18 +85,12 @@ class Pengguna extends CI_Controller
         $id = $this->input->post('id');
 
         $this->load->library('form_validation');
-        $this->form_validation->set_rules('nama', 'Nama', 'trim|required|max_length[100]');
-        $this->form_validation->set_rules('username', 'Username', 'trim|required|max_length[50]');
-
-        if ($id == '') {
-            // untuk create data
-            $this->form_validation->set_rules('password', 'Password', 'trim|required|max_length[100]');
-        } else {
-            // untuk update data ganti password?
-            if ($this->input->post('password') != NULL) {
-                $this->form_validation->set_rules('password', 'Password', 'trim|required|max_length[100]');
-            }
-        }
+        $this->form_validation->set_rules('nama_kunjungan', 'Nama Kunjungan', 'trim|required');
+        $this->form_validation->set_rules('nomor_pelanggan', 'Nomor Pelanggan', 'trim|required');
+        $this->form_validation->set_rules('nomor_meteran', 'Nomor Meteran', 'trim|required');
+        $this->form_validation->set_rules('catatan', 'Catatan', 'trim|required');
+        $this->form_validation->set_rules('latitude', 'Latitude', 'trim|required');
+        $this->form_validation->set_rules('longitude', 'Longitude', 'trim|required');
 
         $this->form_validation->set_message('required', '{field} tidak boleh kosong.');
         $this->form_validation->set_message('matches', 'Password harus sama.');
@@ -109,24 +105,28 @@ class Pengguna extends CI_Controller
         }
 
         $data = array(
-            'nama' => $this->input->post('nama'),
-            'username' => $this->input->post('username')
+            'nama_kunjungan' => $this->input->post('nama_kunjungan'),
+            'nomor_pelanggan' => $this->input->post('nomor_pelanggan'),
+            'nomor_meteran' => $this->input->post('nomor_meteran'),
+            'catatan' => $this->input->post('catatan'),
+            'latitude' => $this->input->post('latitude'),
+            'longitude' => $this->input->post('longitude')
         );
 
 
         if ($id == '') {
-            if ($this->MCore->get_data('pengguna', array('LOWER(username)' => strtolower($data['username'])))->num_rows() > 0) {
+            if ($this->MCore->get_data('kunjungan', array('LOWER(nomor_pelanggan)' => strtolower($data['nomor_pelanggan'])))->num_rows() > 0) {
                 $arr['status'] = 0;
-                $arr['message'] = 'Username telah digunakan';
+                $arr['message'] = 'Nomor Pelanggan telah ada. Periksa lagi.';
                 echo json_encode($arr);
                 exit();
             }
 
             if (isset($_FILES['foto']['name']) && !empty($_FILES['foto']['name'])) {
                 // UPLOAD FOTO
-                $new_name = $data['username'] . '_' . time();
+                $new_name = $data['nama_kunjungan'] . '_' . time();
 
-                $config['upload_path']          = './upload/profil';
+                $config['upload_path']          = './upload/foto';
                 $config['allowed_types']        = 'gif|jpg|png|jpeg';
                 $config['max_size']             = 5000;
                 $config['file_name']            = $new_name;
@@ -141,15 +141,15 @@ class Pengguna extends CI_Controller
                     $image = $img['upload_data']['file_name'];
                     //Compress Image
                     $config['image_library'] = 'gd2';
-                    $config['source_image'] = './upload/profil/' . $image;
+                    $config['source_image'] = './upload/foto/' . $image;
                     $config['create_thumb'] = FALSE;
                     $config['maintain_ratio'] = FALSE;
                     $config['quality'] = '50%';
-                    $config['new_image'] = './upload/profil/' . $image;
+                    $config['new_image'] = './upload/foto/' . $image;
                     $this->load->library('image_lib', $config);
                     $this->image_lib->resize();
 
-                    $data['foto_pengguna'] = config_item('upload') . 'profil/' . $image;
+                    $data['foto_kunjungan'] = config_item('upload') . 'foto/' . $image;
                 } else {
                     $arr['status'] = 0;
                     $arr['message'] = $this->upload->display_errors();
@@ -157,15 +157,14 @@ class Pengguna extends CI_Controller
                 }
             }
 
-            $data['password'] =  $this->input->post('password');
-            $sql = $this->MCore->save_data('pengguna', $data);
+            $sql = $this->MCore->save_data('kunjungan', $data);
         } else {
 
             if (isset($_FILES['foto']['name']) && !empty($_FILES['foto']['name'])) {
                 // UPLOAD FOTO
-                $new_name = $data['username'] . '_' . time();
+                $new_name = $data['nama_kunjungan'] . '_' . time();
 
-                $config['upload_path']          = './upload/profil';
+                $config['upload_path']          = './upload/foto';
                 $config['allowed_types']        = 'gif|jpg|png|jpeg';
                 $config['max_size']             = 5000;
                 $config['file_name']            = $new_name;
@@ -180,22 +179,22 @@ class Pengguna extends CI_Controller
                     $image = $img['upload_data']['file_name'];
                     //Compress Image
                     $config['image_library'] = 'gd2';
-                    $config['source_image'] = './upload/profil/' . $image;
+                    $config['source_image'] = './upload/foto/' . $image;
                     $config['create_thumb'] = FALSE;
                     $config['maintain_ratio'] = FALSE;
                     $config['quality'] = '50%';
-                    $config['new_image'] = './upload/profil/' . $image;
+                    $config['new_image'] = './upload/foto/' . $image;
                     $this->load->library('image_lib', $config);
                     $this->image_lib->resize();
 
-                    $data['foto_pengguna'] = config_item('upload') . 'profil/' . $image;
+                    $data['foto_kunjungan'] = config_item('upload') . 'foto/' . $image;
 
                     //delete
-                    $img_user = $this->MCore->select_data('foto_pengguna', 'pengguna', 'id_pengguna = ' . $id)->row_array();
-                    $exp = explode('/', $img_user['foto_pengguna']);
+                    $img_user = $this->MCore->select_data('foto_kunjungan', 'kunjungan', 'id_kunjungan = ' . $id)->row_array();
+                    $exp = explode('/', $img_user['foto_kunjungan']);
                     $file_name = end($exp);
 
-                    $path = FCPATH . 'upload/profil/' . $file_name;
+                    $path = FCPATH . 'upload/foto/' . $file_name;
                     if (isset($path)) {
                         unlink($path);
                     }
@@ -206,12 +205,7 @@ class Pengguna extends CI_Controller
                 }
             }
 
-            //jika ada update password
-            if ($this->input->post('password') != NULL) {
-                $data['password'] = $this->input->post('password');
-            }
-
-            $sql = $this->MCore->save_data('pengguna', $data, true, array('id_pengguna' => $id));
+            $sql = $this->MCore->save_data('kunjungan', $data, true, array('id_kunjungan' => $id));
         }
         $arr['status'] = $sql;
         if ($sql) {
@@ -225,7 +219,7 @@ class Pengguna extends CI_Controller
 
     public function aktif($id = 0)
     {
-        $sql = $this->MCore->save_data('pengguna', array('status' => 1), true, array('id_pengguna' => $id));
+        $sql = $this->MCore->save_data('kunjungan', array('status' => 1), true, array('id_kunjungan' => $id));
 
         $arr['status'] = $sql;
         if ($sql) {
@@ -239,7 +233,7 @@ class Pengguna extends CI_Controller
 
     public function nonaktif($id = 0)
     {
-        $sql = $this->MCore->save_data('pengguna', array('status' => 0), true, array('id_pengguna' => $id));
+        $sql = $this->MCore->save_data('kunjungan', array('status' => 0), true, array('id_kunjungan' => $id));
 
         $arr['status'] = $sql;
         if ($sql) {

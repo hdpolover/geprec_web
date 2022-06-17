@@ -202,6 +202,12 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="<?= base_url('Kunjungan') ?>" id="nav_kunjungan">
+                                <i class="fas fa-street-view"></i>
+                                <p>Kunjungan</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="<?= base_url('Riwayat') ?>" id="nav_riwayat">
                                 <i class="fas fa-history"></i>
                                 <p>Riwayat</p>
