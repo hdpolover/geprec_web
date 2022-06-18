@@ -170,10 +170,11 @@ class Kunjungan extends RestController
         $id = $this->input->post('id');
 
         if ($this->post('foto_meteran')) {
-            // $url_param = rtrim($this->post('foto_kunjungan'), '=');
-            // // and later:
-            // $base_64 = $url_param . str_repeat('=', strlen($url_param) % 4);
-            // $img = base64_decode($base_64);
+
+            // untuk watermark
+            $lat = $this->post('latitude');
+            $long = $this->post('longitude');
+
             $file = $this->post('foto_meteran');
             $pos = strpos($file, ';');
             $type = explode(':', substr($file, 0, $pos))[1];
@@ -185,6 +186,40 @@ class Kunjungan extends RestController
 
             if (file_put_contents($pathImage, $dataBase64)) {
                 $data['foto_meteran'] = base_url() . 'upload/foto/' . "meteran_" . time() . "." . $mime[1];
+
+                $imgConfig = array();
+                $imgConfig['image_library']   = 'GD';
+                $imgConfig['source_image']    = $pathImage;
+                $imgConfig['wm_text']         = format_indo(date('Y-m-d H:i:s'));
+                $imgConfig['wm_type']         = 'text';
+                $imgConfig['wm_font_color'] = 'ffff00';
+                $imgConfig['wm_font_path'] = realpath('./assets/fonts/Roboto-Regular.ttf');
+                $imgConfig['wm_font_size']    = '20';
+                $imgConfig['wm_vrt_alignment'] = 'bottom';
+                $imgConfig['wm_hor_alignment'] = 'right';
+                $imgConfig['wm_padding'] = '-10';
+                $this->load->library('image_lib', $imgConfig);
+                $this->image_lib->initialize($imgConfig);
+                if (!$this->image_lib->watermark()) {
+                    echo $this->image_lib->display_errors();
+                }
+
+                $imgConfig = array();
+                $imgConfig['image_library']   = 'GD2';
+                $imgConfig['source_image']    = $pathImage;
+                $imgConfig['wm_text']         = 'LAT : ' . $lat . ', LONG : ' . $long;
+                $imgConfig['wm_type']         = 'text';
+                $imgConfig['wm_font_color'] = 'ffff00';
+                $imgConfig['wm_font_path'] = realpath('./assets/fonts/Roboto-Regular.ttf');
+                $imgConfig['wm_font_size']    = '26';
+                $imgConfig['wm_vrt_alignment'] = 'bottom';
+                $imgConfig['wm_hor_alignment'] = 'right';
+                $imgConfig['wm_padding'] = '-56';
+                $this->load->library('image_lib', $imgConfig);
+                $this->image_lib->initialize($imgConfig);
+                if (!$this->image_lib->watermark()) {
+                    echo $this->image_lib->display_errors();
+                }
             } else {
                 // echo $error;
                 $this->response([
