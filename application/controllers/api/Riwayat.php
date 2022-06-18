@@ -16,7 +16,7 @@ class Riwayat extends RestController
     {
         $option = array(
             'select'    => 'riwayat_kunjungan.foto_meteran, riwayat_kunjungan.foto_selfie, 
-            riwayat_kunjungan.id_gas_pelanggan, riwayat_kunjungan.pembacaan_meter, riwayat_kunjungan.tgl_kunjungan, riwayat_kunjungan.status, kunjungan.*',
+            riwayat_kunjungan.id_gas_pelanggan, riwayat_kunjungan.pembacaan_meter, riwayat_kunjungan.tgl_kunjungan, riwayat_kunjungan.status rstatus, kunjungan.*',
             'table'     => 'riwayat_kunjungan',
             'join'      => array(
                 array('pengguna' => 'riwayat_kunjungan.id_pengguna = pengguna.id_pengguna'),
@@ -51,7 +51,7 @@ class Riwayat extends RestController
     {
         $option = array(
             'select'    => 'pengguna.nama, pengguna.foto_pengguna, pengguna.username, riwayat_kunjungan.foto_meteran, riwayat_kunjungan.foto_selfie, 
-            riwayat_kunjungan.id_gas_pelanggan, riwayat_kunjungan.pembacaan_meter, riwayat_kunjungan.tgl_kunjungan, riwayat_kunjungan.status, kunjungan.*',
+            riwayat_kunjungan.id_gas_pelanggan, riwayat_kunjungan.pembacaan_meter, riwayat_kunjungan.tgl_kunjungan, riwayat_kunjungan.status rstatus, kunjungan.*',
             'table'     => 'riwayat_kunjungan',
             'join'      => array(
                 array('pengguna' => 'riwayat_kunjungan.id_pengguna = pengguna.id_pengguna'),
