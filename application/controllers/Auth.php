@@ -15,7 +15,7 @@ class Auth extends CI_Controller
 			'title' => 'Login'
 		];
 
-		$this->load->view('VAuth', $data);
+		$this->load->view('VAuth2', $data);
 	}
 
 	public function do_login()
