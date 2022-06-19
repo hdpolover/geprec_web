@@ -16,13 +16,13 @@ class Kunjungan extends RestController
     {
 
         $data = array(
-            'nomor_pelanggan'   => $this->post('nomor_pelanggan'),
-            'nomor_meteran'     => $this->post('nomor_meteran'),
+            // 'nomor_pelanggan'   => $this->post('nomor_pelanggan'),
+            // 'nomor_meteran'     => $this->post('nomor_meteran'),
             'nama_kunjungan'    => $this->post('nama_kunjungan'),
             'alamat'            => $this->post('alamat'),
             'catatan'           => $this->post('catatan'),
-            'latitude'          => $this->post('latitude'),
-            'longitude'         => $this->post('longitude'),
+            'latitude_awal'     => $this->post('latitude_awal'),
+            'longitude_awal'    => $this->post('longitude_awal')
         );
 
         $id = $this->post('id');
@@ -315,6 +315,29 @@ class Kunjungan extends RestController
                 'status' => false,
                 'message' => 'Tidak ada data',
                 'data' => NULL
+            ], 404);
+        }
+    }
+    
+    public function update_kunjungan($id_kunjungan){
+
+        $data = array(
+            'latitude_baru' => $this->post('latitude_baru'),
+            'longitude_baru' => $this->post('longitude_baru')
+        );
+
+        $sql = $this->MCore->save_data('kunjungan', $data, true, array('id_kunjungan' => $id_kunjungan));
+
+        // CHECK
+        if ($sql) {
+            $this->response([
+                'status' => '200',
+                'message' => 'Data Berhasil Diperbarui'
+            ], 200);
+        } else {
+            $this->response([
+                'status' => '404',
+                'message' => 'Terjadi Kesalahan!'
             ], 404);
         }
     }

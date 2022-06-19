@@ -69,9 +69,9 @@
                                             <th>No</th>
                                             <th>Status</th>
                                             <th>Nama Kunjungan</th>
-                                            <th>Nomor Pelanggan</th>
-                                            <th>Nomor Meteran</th>
                                             <th>Alamat</th>
+                                            <th>Catatan</th>
+                                            <th>Reset Lokasi</th>
                                             <th>#</th>
                                         </tr>
                                     </thead>
@@ -101,7 +101,7 @@
                                             <input id="nama_kunjungan" type="text" class="form-control" autocomplete="off">
                                         </div>
                                     </div>
-                                    <div class="col-md-6 pr-0">
+                                    <!-- <div class="col-md-6 pr-0">
                                         <div class="form-group form-group-default">
                                             <label>Nomor Pelanggan</label>
                                             <input id="nomor_pelanggan" type="text" class="form-control" autocomplete="off">
@@ -112,29 +112,29 @@
                                             <label>Nomor Meteran</label>
                                             <input id="nomor_meteran" type="text" class="form-control" autocomplete="off">
                                         </div>
-                                    </div>
+                                    </div> -->
                                     <div class="col-md-12">
                                         <div class="form-group  form-group-default">
                                             <label for="alamat">Alamat</label>
-                                            <textarea class="form-control" id="alamat" rows="5"></textarea>
+                                            <textarea class="form-control" id="alamat" rows="3"></textarea>
                                         </div>
                                     </div>
                                     <div class="col-md-12">
                                         <div class="form-group  form-group-default">
                                             <label for="catatan">Catatan</label>
-                                            <textarea class="form-control" id="catatan" rows="5"></textarea>
+                                            <textarea class="form-control" id="catatan" rows="3"></textarea>
                                         </div>
                                     </div>
                                     <div class="col-md-6 pr-0">
                                         <div class="form-group form-group-default">
                                             <label>Latitude</label>
-                                            <input id="latitude" type="text" class="form-control" autocomplete="off">
+                                            <input id="latitude_awal" type="text" class="form-control" autocomplete="off">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group form-group-default">
                                             <label>Longitude</label>
-                                            <input id="longitude" type="text" class="form-control" autocomplete="off">
+                                            <input id="longitude_awal" type="text" class="form-control" autocomplete="off">
                                         </div>
                                     </div>
                                     <div class="col-md-12">
@@ -194,12 +194,12 @@
             dt.append('foto', $('input#foto')[0].files[0]);
             dt.append('id', $('input#id').val());
             dt.append('nama_kunjungan', $('input#nama_kunjungan').val());
-            dt.append('nomor_pelanggan', $('input#nomor_pelanggan').val());
-            dt.append('nomor_meteran', $('input#nomor_meteran').val());
+            // dt.append('nomor_pelanggan', $('input#nomor_pelanggan').val());
+            // dt.append('nomor_meteran', $('input#nomor_meteran').val());
             dt.append('alamat', $('textarea#alamat').val());
             dt.append('catatan', $('textarea#catatan').val());
-            dt.append('latitude', $('input#latitude').val());
-            dt.append('longitude', $('input#longitude').val());
+            dt.append('latitude_awal', $('input#latitude_awal').val());
+            dt.append('longitude_awal', $('input#longitude_awal').val());
 
             $.ajax({
                 type: 'POST',
@@ -249,12 +249,12 @@
 
                     $('#form-data').find('#id').val(r.id_kunjungan);
                     $('#form-data').find('#nama_kunjungan').val(r.nama_kunjungan);
-                    $('#form-data').find('#nomor_pelanggan').val(r.nomor_pelanggan);
-                    $('#form-data').find('#nomor_meteran').val(r.nomor_meteran);
+                    // $('#form-data').find('#nomor_pelanggan').val(r.nomor_pelanggan);
+                    // $('#form-data').find('#nomor_meteran').val(r.nomor_meteran);
                     $('#form-data').find('#alamat').val(r.alamat);
                     $('#form-data').find('#catatan').val(r.catatan);
-                    $('#form-data').find('#latitude').val(r.latitude);
-                    $('#form-data').find('#longitude').val(r.longitude);
+                    $('#form-data').find('#latitude_awal').val(r.latitude_awal);
+                    $('#form-data').find('#longitude_awal').val(r.longitude_awal);
 
                     if ((r.foto_kunjungan)) {
                         $('#form-data').find("#image-preview").attr("src", r.foto_kunjungan);
@@ -442,6 +442,122 @@
                     });
                 }
             });
+        }).on('click', '#btn-reset-aktif', function() {
+            var b = $(this),
+                i = b.find('i'),
+                cls = i.attr('class');
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success m-2',
+                    cancelButton: 'btn btn-secondary'
+                },
+                buttonsStyling: false
+            });
+
+            swalWithBootstrapButtons.fire({
+                text: "Apakah anda yakin akan memberikan reset lokasi data berikut?",
+                icon: 'warning',
+                showCancelButton: true,
+                cancelButtonText: 'Batal',
+                confirmButtonText: 'Ya',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '<?= base_url('Kunjungan/reset_aktif') ?>/' + b.data('id'),
+                        dataType: 'JSON',
+                        // async: false,
+                        done: function(r) {},
+                        beforeSend: function() {
+                            i.removeClass().addClass('fa fa-spin fa-spinner');
+                        },
+                        success: function(r) {
+                            if (r.status) {
+                                Swal.fire(
+                                    '',
+                                    r.message,
+                                    'success'
+                                )
+                                setDataTable('#table-data', r.tbody);
+                            } else {
+                                Swal.fire(
+                                    '',
+                                    r.message,
+                                    'error'
+                                )
+                            }
+                            i.removeClass().addClass(cls);
+                        },
+                        error: function(e) {
+                            Swal.fire(
+                                'Error!',
+                                'Terjadi kesalahan!!',
+                                'error'
+                            )
+                            i.removeClass().addClass(cls);
+                        }
+                    });
+                }
+            });
+        }).on('click', '#btn-reset-nonaktif', function() {
+            var b = $(this),
+                i = b.find('i'),
+                cls = i.attr('class');
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-danger m-2',
+                    cancelButton: 'btn btn-secondary'
+                },
+                buttonsStyling: false
+            });
+
+            swalWithBootstrapButtons.fire({
+                text: "Apakah anda yakin akan mencabut reset lokasi data berikut?",
+                icon: 'warning',
+                showCancelButton: true,
+                cancelButtonText: 'Batal',
+                confirmButtonText: 'Cabut',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '<?= base_url('Kunjungan/reset_nonaktif') ?>/' + b.data('id'),
+                        dataType: 'JSON',
+                        // async: false,
+                        done: function(r) {},
+                        beforeSend: function() {
+                            i.removeClass().addClass('fa fa-spin fa-spinner');
+                        },
+                        success: function(r) {
+                            if (r.status) {
+                                Swal.fire(
+                                    '',
+                                    r.message,
+                                    'success'
+                                )
+                                setDataTable('#table-data', r.tbody);
+                            } else {
+                                Swal.fire(
+                                    '',
+                                    r.message,
+                                    'error'
+                                )
+                            }
+                            i.removeClass().addClass(cls);
+                        },
+                        error: function(e) {
+                            Swal.fire(
+                                'Error!',
+                                'Terjadi kesalahan!!',
+                                'error'
+                            )
+                            i.removeClass().addClass(cls);
+                        }
+                    });
+                }
+            });
         }).on('click', '#btn-export', function(e) {
             e.preventDefault();
             window.open('<?php echo base_url('Kunjungan/export_excel/') ?>', '_blank');
@@ -479,21 +595,21 @@
                     "width": "60px",
                 }, {
                     "targets": [2],
-                    "width": "100px",
+                    "width": "120px",
                 }, {
                     "targets": [3],
-                    "width": "60px",
+                    "width": "200px",
                 }, {
                     "targets": [4],
-                    "width": "60px",
+                    "width": "200px",
                 }, {
                     "targets": [5],
-                    "width": "100px",
+                    "width": "60px",
                     "orderable": false,
                 }, {
                     "targets": [6],
+                    "width": "140px",
                     "className": "text-center",
-                    "width": "100px",
                     "orderable": false,
                 }],
             });

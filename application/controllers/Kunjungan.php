@@ -48,9 +48,9 @@ class Kunjungan extends CI_Controller
 
             $status = '<span class="badge badge-primary">Aktif</span>';
 
-            $button = '<button id="btn-assign" type="button" data-toggle="tooltip" data-id="' . $value['id_kunjungan'] . '" title="" class="btn btn-link btn-simple-secondary btn-lg" data-original-title="Assign Petugas">
+            $button = '<button id="btn-assign" type="button" data-toggle="tooltip" data-id="' . $value['id_kunjungan'] . '" title="" class="btn btn-link btn-simple-secondary" data-original-title="Assign Petugas">
             <i class="fa fa-sign-in-alt text-secondary"></i>
-            <button id="btn-edit" type="button" data-toggle="tooltip" data-id="' . $value['id_kunjungan'] . '" title="" class="btn btn-link btn-simple-primary btn-lg" data-original-title="Edit">
+            <button id="btn-edit" type="button" data-toggle="tooltip" data-id="' . $value['id_kunjungan'] . '" title="" class="btn btn-link btn-simple-primary" data-original-title="Edit">
             <i class="fa fa-edit"></i>
         </button>';
             if ($value['status'] == 0) {
@@ -65,7 +65,24 @@ class Kunjungan extends CI_Controller
                     <i class="fa fa-times text-danger"></i>
                 </button>';
             }
-            $button .= '<button id="btn-export-assign" type="button" data-toggle="tooltip" data-id="' . $value['id_kunjungan'] . '" title="" class="btn btn-link btn-simple-success btn-lg" data-original-title="Export">
+
+            // untuk reset lokasi
+            if ($value['reset_lokasi'] == 1) {
+
+                $status_reset = '<span class="badge badge-primary">Tersedia</span>';
+                $button .= '
+                <button id="btn-reset-nonaktif" data-id="' . $value['id_kunjungan'] . '" type="button" data-toggle="tooltip" title="" class="btn btn-link btn-simple-danger" data-original-title="Cabut Reset Lokasi">
+                    <i class="fa fa-trash text-danger"></i>
+                </button>';
+            } else if ($value['reset_lokasi'] == 0) {
+
+                $status_reset = '<span class="badge badge-danger">Tidak tersedia</span>';
+                $button .= '
+                <button id="btn-reset-aktif" data-id="' . $value['id_kunjungan'] . '" type="button" data-toggle="tooltip" title="" class="btn btn-link btn-simple-success" data-original-title="Beri Reset Lokasi">
+                    <i class="fa fa-check-double text-secondary"></i>
+                </button>';
+            }
+            $button .= '<button id="btn-export-assign" type="button" data-toggle="tooltip" data-id="' . $value['id_kunjungan'] . '" title="" class="btn btn-link btn-simple-success" data-original-title="Export">
             <i class="fa fa-file-excel text-success"></i>
         </button>';
 ?>
@@ -73,9 +90,9 @@ class Kunjungan extends CI_Controller
                 <td class="text-center"><?= $no ?></td>
                 <td><?= $status ?></td>
                 <td><?= $value['nama_kunjungan'] ?></td>
-                <td><?= $value['nomor_pelanggan'] ?></td>
-                <td><?= $value['nomor_meteran'] ?></td>
                 <td><?= $value['alamat'] ?></td>
+                <td><?= $value['catatan'] ?></td>
+                <td><?= $status_reset ?></td>
                 <td class="text-center">
                     <?= $button; ?>
                 </td>
@@ -101,11 +118,10 @@ class Kunjungan extends CI_Controller
 
         $this->load->library('form_validation');
         $this->form_validation->set_rules('nama_kunjungan', 'Nama Kunjungan', 'trim|required');
-        $this->form_validation->set_rules('nomor_pelanggan', 'Nomor Pelanggan', 'trim|required');
-        $this->form_validation->set_rules('nomor_meteran', 'Nomor Meteran', 'trim|required');
+        $this->form_validation->set_rules('alamat', 'Alamat', 'trim|required');
         $this->form_validation->set_rules('catatan', 'Catatan', 'trim|required');
-        $this->form_validation->set_rules('latitude', 'Latitude', 'trim|required');
-        $this->form_validation->set_rules('longitude', 'Longitude', 'trim|required');
+        $this->form_validation->set_rules('latitude_awal', 'Latitude', 'trim|required');
+        $this->form_validation->set_rules('longitude_awal', 'Longitude', 'trim|required');
 
         $this->form_validation->set_message('required', '{field} tidak boleh kosong.');
         $this->form_validation->set_message('matches', 'Password harus sama.');
@@ -121,21 +137,22 @@ class Kunjungan extends CI_Controller
 
         $data = array(
             'nama_kunjungan' => $this->input->post('nama_kunjungan'),
-            'nomor_pelanggan' => $this->input->post('nomor_pelanggan'),
-            'nomor_meteran' => $this->input->post('nomor_meteran'),
+            // 'nomor_pelanggan' => $this->input->post('nomor_pelanggan'),
+            // 'nomor_meteran' => $this->input->post('nomor_meteran'),
+            'alamat' => $this->input->post('alamat'),
             'catatan' => $this->input->post('catatan'),
-            'latitude' => $this->input->post('latitude'),
-            'longitude' => $this->input->post('longitude')
+            'latitude_awal' => $this->input->post('latitude_awal'),
+            'longitude_awal' => $this->input->post('longitude_awal')
         );
 
 
         if ($id == '') {
-            if ($this->MCore->get_data('kunjungan', array('LOWER(nomor_pelanggan)' => strtolower($data['nomor_pelanggan'])))->num_rows() > 0) {
-                $arr['status'] = 0;
-                $arr['message'] = 'Nomor Pelanggan telah ada. Periksa lagi.';
-                echo json_encode($arr);
-                exit();
-            }
+            // if ($this->MCore->get_data('kunjungan', array('LOWER(nomor_pelanggan)' => strtolower($data['nomor_pelanggan'])))->num_rows() > 0) {
+            //     $arr['status'] = 0;
+            //     $arr['message'] = 'Nomor Pelanggan telah ada. Periksa lagi.';
+            //     echo json_encode($arr);
+            //     exit();
+            // }
 
             if (isset($_FILES['foto']['name']) && !empty($_FILES['foto']['name'])) {
                 // UPLOAD FOTO
@@ -284,10 +301,18 @@ class Kunjungan extends CI_Controller
             </div>
             <div class="row">
                 <div class="col-4">
-                    Latitude dan Longitude
+                    Latitude dan Longitude Awal
                 </div>
                 <div class="col">
-                    : <?= $data['latitude'] . ', ' . $data['longitude'] ?>
+                    : <?= $data['latitude_awal'] . ', ' . $data['longitude_awal'] ?>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-4">
+                    Latitude dan Longitude Baru
+                </div>
+                <div class="col">
+                    : <?= $data['latitude_baru'] . ', ' . $data['longitude_baru'] ?>
                 </div>
             </div>
         </div>
@@ -445,8 +470,9 @@ class Kunjungan extends CI_Controller
         $objPHPExcel->getActiveSheet()->SetCellValue('E5', 'Nomor Meteran');
         $objPHPExcel->getActiveSheet()->SetCellValue('F5', 'Alamat Kunjungan');
         $objPHPExcel->getActiveSheet()->SetCellValue('G5', 'Catatan');
-        $objPHPExcel->getActiveSheet()->SetCellValue('H5', 'Latitude Longitude');
-        $objPHPExcel->getActiveSheet()->SetCellValue('I5', 'Foto Kunjungan');
+        $objPHPExcel->getActiveSheet()->SetCellValue('H5', 'Latitude Longitude Awal');
+        $objPHPExcel->getActiveSheet()->SetCellValue('I5', 'Latitude Longitude Baru');
+        $objPHPExcel->getActiveSheet()->SetCellValue('J5', 'Foto Kunjungan');
         $objPHPExcel->getActiveSheet()->getRowDimension('5')->setRowHeight(20);
 
         $judul = 'Data Kunjungan';
@@ -479,12 +505,13 @@ class Kunjungan extends CI_Controller
             $objPHPExcel->getActiveSheet()->SetCellValue('E' . $rowCount, $list->nomor_meteran);
             $objPHPExcel->getActiveSheet()->SetCellValue('F' . $rowCount, $list->alamat);
             $objPHPExcel->getActiveSheet()->SetCellValue('G' . $rowCount, $list->catatan);
-            $objPHPExcel->getActiveSheet()->SetCellValue('H' . $rowCount, $list->latitude . ', ' . $list->longitude);
+            $objPHPExcel->getActiveSheet()->SetCellValue('H' . $rowCount, $list->latitude_awal . ', ' . $list->longitude_awal);
+            $objPHPExcel->getActiveSheet()->SetCellValue('I' . $rowCount, $list->latitude_baru . ', ' . $list->longitude_baru);
             if ($list->foto_kunjungan) {
-                $objPHPExcel->getActiveSheet()->getCell('I' . $rowCount)->getHyperlink()->setUrl($list->foto_kunjungan);
-                $objPHPExcel->getActiveSheet()->SetCellValue('I' . $rowCount, $list->foto_kunjungan);
+                $objPHPExcel->getActiveSheet()->getCell('J' . $rowCount)->getHyperlink()->setUrl($list->foto_kunjungan);
+                $objPHPExcel->getActiveSheet()->SetCellValue('J' . $rowCount, $list->foto_kunjungan);
             } else {
-                $objPHPExcel->getActiveSheet()->SetCellValue('I' . $rowCount, "Tidak ada foto");
+                $objPHPExcel->getActiveSheet()->SetCellValue('J' . $rowCount, "Tidak ada foto");
             }
 
             $no++;
@@ -500,6 +527,7 @@ class Kunjungan extends CI_Controller
         $objPHPExcel->getActiveSheet()->getColumnDimension('G')->setWidth(70);
         $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setWidth(30);
         $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setWidth(30);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setWidth(30);
 
         // TABEL
         $styleArray = array(
@@ -509,11 +537,11 @@ class Kunjungan extends CI_Controller
                 ),
             )
         );
-        $objPHPExcel->getActiveSheet()->getStyle("A5:I" . ($rowCount - 1))->applyFromArray($styleArray);
+        $objPHPExcel->getActiveSheet()->getStyle("A5:J" . ($rowCount - 1))->applyFromArray($styleArray);
 
         // ini untuk style header
         $from = "A5"; // or any value
-        $to =  "I5"; // or any value
+        $to =  "J5"; // or any value
         //style
         $style_cell = array(
             'alignment' => array(
@@ -568,7 +596,7 @@ class Kunjungan extends CI_Controller
         // print_r($listInfo);
         // die();
 
-        if($listInfo->num_rows() < 1){
+        if ($listInfo->num_rows() < 1) {
             echo "Maaf, data tidak ada :(";
             die();
         }
@@ -597,7 +625,7 @@ class Kunjungan extends CI_Controller
         $objPHPExcel->getActiveSheet()->SetCellValue('C13', 'Tanggal Ditambahkan');
         $objPHPExcel->getActiveSheet()->getRowDimension('13')->setRowHeight(20);
         // set Row
-        $rowCount = 14;
+        $rowCount = 15;
         $no = 1;
         $first = true;
 
@@ -618,8 +646,9 @@ class Kunjungan extends CI_Controller
                 $objPHPExcel->getActiveSheet()->SetCellValue('A7', 'Nomor Meteran');
                 $objPHPExcel->getActiveSheet()->SetCellValue('A8', 'Alamat Kunjungan');
                 $objPHPExcel->getActiveSheet()->SetCellValue('A9', 'Catatan');
-                $objPHPExcel->getActiveSheet()->SetCellValue('A10', 'Latitude Longitude');
-                $objPHPExcel->getActiveSheet()->SetCellValue('A11', 'Foto Kunjungan');
+                $objPHPExcel->getActiveSheet()->SetCellValue('A10', 'Latitude Longitude Awal');
+                $objPHPExcel->getActiveSheet()->SetCellValue('A11', 'Latitude Longitude Baru');
+                $objPHPExcel->getActiveSheet()->SetCellValue('A12', 'Foto Kunjungan');
 
                 switch ($list->status) {
                     case 0:
@@ -635,12 +664,13 @@ class Kunjungan extends CI_Controller
                 $objPHPExcel->getActiveSheet()->SetCellValue('B7', " : " . $list->nomor_meteran);
                 $objPHPExcel->getActiveSheet()->SetCellValue('B8', " : " . $list->alamat);
                 $objPHPExcel->getActiveSheet()->SetCellValue('B9', " : " . $list->catatan);
-                $objPHPExcel->getActiveSheet()->SetCellValue('B10', " : " . $list->latitude . ', ' . $list->longitude);
+                $objPHPExcel->getActiveSheet()->SetCellValue('B10', " : " . $list->latitude_awal . ', ' . $list->longitude_awal);
+                $objPHPExcel->getActiveSheet()->SetCellValue('B11', " : " . $list->latitude_baru . ', ' . $list->longitude_baru);
                 if ($list->foto_kunjungan) {
-                    $objPHPExcel->getActiveSheet()->getCell('B11')->getHyperlink()->setUrl($list->foto_kunjungan);
-                    $objPHPExcel->getActiveSheet()->SetCellValue('B11', $list->foto_kunjungan);
+                    $objPHPExcel->getActiveSheet()->getCell('B12')->getHyperlink()->setUrl($list->foto_kunjungan);
+                    $objPHPExcel->getActiveSheet()->SetCellValue('B12', $list->foto_kunjungan);
                 } else {
-                    $objPHPExcel->getActiveSheet()->SetCellValue('B11', "Tidak ada foto");
+                    $objPHPExcel->getActiveSheet()->SetCellValue('B12', "Tidak ada foto");
                 }
 
                 $first = false;
@@ -667,11 +697,11 @@ class Kunjungan extends CI_Controller
                 ),
             )
         );
-        $objPHPExcel->getActiveSheet()->getStyle("A13:C" . ($rowCount - 1))->applyFromArray($styleArray);
+        $objPHPExcel->getActiveSheet()->getStyle("A14:C" . ($rowCount - 1))->applyFromArray($styleArray);
 
         // ini untuk style header
-        $from = "A13"; // or any value
-        $to =  "C13"; // or any value
+        $from = "A14"; // or any value
+        $to =  "C14"; // or any value
         //style
         $style_cell = array(
             'alignment' => array(
@@ -721,6 +751,34 @@ class Kunjungan extends CI_Controller
         $arr['status'] = $sql;
         if ($sql) {
             $arr['message'] = 'Data berhasil dinonaktifkan';
+            $arr['tbody'] = $this->list_();
+        } else {
+            $arr['message'] = 'Data gagal dinonaktifkan';
+        }
+        echo json_encode($arr);
+    }
+
+    public function reset_aktif($id = 0)
+    {
+        $sql = $this->MCore->save_data('kunjungan', array('reset_lokasi' => 1), true, array('id_kunjungan' => $id));
+
+        $arr['status'] = $sql;
+        if ($sql) {
+            $arr['message'] = 'Reset Lokasi berhasil Ditambahkan';
+            $arr['tbody'] = $this->list_();
+        } else {
+            $arr['message'] = 'Data gagal diaktifkan';
+        }
+        echo json_encode($arr);
+    }
+
+    public function reset_nonaktif($id = 0)
+    {
+        $sql = $this->MCore->save_data('kunjungan', array('reset_lokasi' => 0), true, array('id_kunjungan' => $id));
+
+        $arr['status'] = $sql;
+        if ($sql) {
+            $arr['message'] = 'Reset Lokasi berhasil Dicabut';
             $arr['tbody'] = $this->list_();
         } else {
             $arr['message'] = 'Data gagal dinonaktifkan';

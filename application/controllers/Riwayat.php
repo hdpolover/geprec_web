@@ -240,18 +240,18 @@ class Riwayat extends CI_Controller
         <hr>
         <h4>Bukti Dokumen</h4>
         <div class="row">
-            <div class="col">
-                <p>Foto Selfie</p>
+            <div class="col-12">
+                <h5 class="font-weight-bold">Foto Selfie</h5>
                 <?php if ($data['foto_selfie']) { ?>
-                    <img src="<?= $data['foto_selfie'] ?>" alt="foto selfie" width="200px;">
+                    <img src="<?= $data['foto_selfie'] ?>" alt="foto selfie" style="max-width: inherit;">
                 <?php } else {
                     echo "tidak ada";
                 } ?>
             </div>
-            <div class="col">
-                <p>Foto Meteran</p>
+            <div class="col-12 mt-4">
+                <h5 class="font-weight-bold">Foto Meteran</h5>
                 <?php if ($data['foto_meteran']) { ?>
-                    <img src="<?= $data['foto_meteran'] ?>" alt="foto meteran" width="200px;">
+                    <img src="<?= $data['foto_meteran'] ?>" alt="foto meteran" style="max-width: inherit;">
                 <?php } else {
                     echo "tidak ada";
                 } ?>
