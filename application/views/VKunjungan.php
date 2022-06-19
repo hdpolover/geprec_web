@@ -101,18 +101,6 @@
                                             <input id="nama_kunjungan" type="text" class="form-control" autocomplete="off">
                                         </div>
                                     </div>
-                                    <!-- <div class="col-md-6 pr-0">
-                                        <div class="form-group form-group-default">
-                                            <label>Nomor Pelanggan</label>
-                                            <input id="nomor_pelanggan" type="text" class="form-control" autocomplete="off">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group form-group-default">
-                                            <label>Nomor Meteran</label>
-                                            <input id="nomor_meteran" type="text" class="form-control" autocomplete="off">
-                                        </div>
-                                    </div> -->
                                     <div class="col-md-12">
                                         <div class="form-group  form-group-default">
                                             <label for="alamat">Alamat</label>
@@ -127,14 +115,26 @@
                                     </div>
                                     <div class="col-md-6 pr-0">
                                         <div class="form-group form-group-default">
-                                            <label>Latitude</label>
+                                            <label>Latitude Awal</label>
                                             <input id="latitude_awal" type="text" class="form-control" autocomplete="off">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group form-group-default">
-                                            <label>Longitude</label>
+                                            <label>Longitude Awal</label>
                                             <input id="longitude_awal" type="text" class="form-control" autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 pr-0">
+                                        <div class="form-group form-group-default">
+                                            <label>Latitude Baru</label>
+                                            <input id="latitude_baru" type="text" class="form-control" autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group form-group-default">
+                                            <label>Longitude Baru</label>
+                                            <input id="longitude_baru" type="text" class="form-control" autocomplete="off">
                                         </div>
                                     </div>
                                     <div class="col-md-12">
@@ -194,12 +194,12 @@
             dt.append('foto', $('input#foto')[0].files[0]);
             dt.append('id', $('input#id').val());
             dt.append('nama_kunjungan', $('input#nama_kunjungan').val());
-            // dt.append('nomor_pelanggan', $('input#nomor_pelanggan').val());
-            // dt.append('nomor_meteran', $('input#nomor_meteran').val());
             dt.append('alamat', $('textarea#alamat').val());
             dt.append('catatan', $('textarea#catatan').val());
             dt.append('latitude_awal', $('input#latitude_awal').val());
             dt.append('longitude_awal', $('input#longitude_awal').val());
+            dt.append('latitude_baru', $('input#latitude_baru').val());
+            dt.append('longitude_baru', $('input#longitude_baru').val());
 
             $.ajax({
                 type: 'POST',
@@ -249,12 +249,12 @@
 
                     $('#form-data').find('#id').val(r.id_kunjungan);
                     $('#form-data').find('#nama_kunjungan').val(r.nama_kunjungan);
-                    // $('#form-data').find('#nomor_pelanggan').val(r.nomor_pelanggan);
-                    // $('#form-data').find('#nomor_meteran').val(r.nomor_meteran);
                     $('#form-data').find('#alamat').val(r.alamat);
                     $('#form-data').find('#catatan').val(r.catatan);
                     $('#form-data').find('#latitude_awal').val(r.latitude_awal);
                     $('#form-data').find('#longitude_awal').val(r.longitude_awal);
+                    $('#form-data').find('#latitude_baru').val(r.latitude_baru);
+                    $('#form-data').find('#longitude_baru').val(r.longitude_baru);
 
                     if ((r.foto_kunjungan)) {
                         $('#form-data').find("#image-preview").attr("src", r.foto_kunjungan);
@@ -605,6 +605,7 @@
                 }, {
                     "targets": [5],
                     "width": "60px",
+                    "className": "text-center",
                     "orderable": false,
                 }, {
                     "targets": [6],
@@ -612,6 +613,10 @@
                     "className": "text-center",
                     "orderable": false,
                 }],
+                "initComplete": function() {
+
+                    $('[data-toggle="tooltip"]').tooltip();
+                }
             });
         }
 

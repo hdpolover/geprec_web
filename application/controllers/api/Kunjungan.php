@@ -22,7 +22,9 @@ class Kunjungan extends RestController
             'alamat'            => $this->post('alamat'),
             'catatan'           => $this->post('catatan'),
             'latitude_awal'     => $this->post('latitude_awal'),
-            'longitude_awal'    => $this->post('longitude_awal')
+            'longitude_awal'    => $this->post('longitude_awal'),
+            'latitude_baru'     => $this->post('latitude_baru'),
+            'longitude_baru'    => $this->post('longitude_baru')
         );
 
         $id = $this->post('id');
@@ -319,7 +321,7 @@ class Kunjungan extends RestController
         }
     }
     
-    public function update_kunjungan($id_kunjungan){
+    public function update_kunjungan_post($id_kunjungan){
 
         $data = array(
             'latitude_baru' => $this->post('latitude_baru'),

@@ -103,8 +103,8 @@
                                             <th>No</th>
                                             <th>Status</th>
                                             <th>Nama Kunjungan</th>
-                                            <th>Nomor Pelanggan</th>
-                                            <th>Nomor Meteran</th>
+                                            <th>Alamat</th>
+                                            <th>Catatan</th>
                                             <th>Nama Petugas</th>
                                             <th>Tanggal Kunjungan</th>
                                             <th>#</th>
@@ -334,9 +334,14 @@
                     },
                     {
                         "targets": 7,
-                        "orderable": false
+                        "orderable": false,
+                        "className": 'text-center'
                     },
                 ],
+                "initComplete": function() {
+
+                    $('[data-toggle="tooltip"]').tooltip();
+                }
             });
             // setTimeout(() => {
             //     card.find('.overlay').remove();

@@ -366,6 +366,10 @@
                     "width": "20%",
                     "orderable": false,
                 }],
+                "initComplete": function() {
+
+                    $('[data-toggle="tooltip"]').tooltip();
+                }
             });
         }
 

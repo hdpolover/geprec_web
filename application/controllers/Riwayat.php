@@ -68,8 +68,8 @@ class Riwayat extends CI_Controller
                 array('kunjungan' => 'riwayat_kunjungan.id_kunjungan = kunjungan.id_kunjungan')
             ),
             'where'     => array_filter($filter),
-            'column_order' => array(null, null, 'nama_kunjungan', 'nomor_pelanggan', 'nomor_meteran', 'nama', 'tgl_kunjungan', null),
-            'column_search' => array('nama_kunjungan', 'nomor_pelanggan', 'nomor_meteran', 'nama', 'tgl_kunjungan'),
+            'column_order' => array(null, null, 'nama_kunjungan', 'alamat', 'catatan' ,'nama', 'tgl_kunjungan', null),
+            'column_search' => array('nama_kunjungan',  'alamat', 'catatan', 'nama', 'tgl_kunjungan'),
             'order'     => array('riwayat_kunjungan.tgl_kunjungan' => 'DESC')
         );
 
@@ -83,7 +83,7 @@ class Riwayat extends CI_Controller
             $no++;
             $button = '<button id="btn-detail" type="button" data-toggle="tooltip" data-id="' . $value->id_riwayat_kunjungan . '" title="" class="btn btn-link btn-simple-primary btn-lg" data-original-title="Detail">
             <i class="fa fa-ellipsis-h"></i>
-        </button>';
+        </button><br>';
             if ($value->rstatus == 0) {
                 $status = '<span class="badge badge-warning">Menunggu</span>';
                 $button .= '<button id="btn-aktif" type="button" data-toggle="tooltip" data-id="' . $value->id_riwayat_kunjungan . '" title="" class="btn btn-link btn-simple-primary btn-lg" data-original-title="Diterima">
@@ -103,8 +103,8 @@ class Riwayat extends CI_Controller
             $row[] = $no;
             $row[] = $status;
             $row[] = $value->nama_kunjungan;
-            $row[] = $value->nomor_pelanggan;
-            $row[] = $value->nomor_meteran;
+            $row[] = $value->alamat;
+            $row[] = $value->catatan;
             $row[] = $value->nama;
             $row[] = format_indo($value->tgl_kunjungan);
             $row[] =  $button;
@@ -173,22 +173,6 @@ class Riwayat extends CI_Controller
         </div>
         <div class="row">
             <div class="col-4">
-                Nomor Kunjungan
-            </div>
-            <div class="col">
-                : <?= $data['nomor_pelanggan'] ?>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-4">
-                Nomor Meteran
-            </div>
-            <div class="col">
-                : <?= $data['nomor_meteran'] ?>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-4">
                 Alamat Kunjungan
             </div>
             <div class="col">
@@ -205,10 +189,18 @@ class Riwayat extends CI_Controller
         </div>
         <div class="row">
             <div class="col-4">
-                Latitude dan Longitude
+                Lat dan Long Awal
             </div>
             <div class="col">
-                : <?= $data['latitude'] . ', ' . $data['longitude'] ?>
+                : <?= $data['latitude_awal'] . ', ' . $data['longitude_awal'] ?>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-4">
+                Lat dan Long Baru
+            </div>
+            <div class="col">
+                : <?= $data['latitude_baru'] . ', ' . $data['longitude_baru'] ?>
             </div>
         </div>
         <hr>
@@ -325,17 +317,16 @@ class Riwayat extends CI_Controller
         $objPHPExcel->getActiveSheet()->SetCellValue('A5', 'No');
         $objPHPExcel->getActiveSheet()->SetCellValue('B5', 'Status');
         $objPHPExcel->getActiveSheet()->SetCellValue('C5', 'Nama Kunjungan');
-        $objPHPExcel->getActiveSheet()->SetCellValue('D5', 'Nomor Pelanggan');
-        $objPHPExcel->getActiveSheet()->SetCellValue('E5', 'Nomor Meteran');
-        $objPHPExcel->getActiveSheet()->SetCellValue('F5', 'Alamat Kunjungan');
-        $objPHPExcel->getActiveSheet()->SetCellValue('G5', 'Catatan');
-        $objPHPExcel->getActiveSheet()->SetCellValue('H5', 'Latitude Longitude');
-        $objPHPExcel->getActiveSheet()->SetCellValue('I5', 'ID Gas Pelanggan');
-        $objPHPExcel->getActiveSheet()->SetCellValue('J5', 'Pembacaan Meteran');
-        $objPHPExcel->getActiveSheet()->SetCellValue('K5', 'Foto Meteran');
-        $objPHPExcel->getActiveSheet()->SetCellValue('L5', 'Tanggal Kunjungan');
-        $objPHPExcel->getActiveSheet()->SetCellValue('M5', 'Foto Selfie');
-        $objPHPExcel->getActiveSheet()->SetCellValue('N5', 'Petugas');
+        $objPHPExcel->getActiveSheet()->SetCellValue('D5', 'Alamat Kunjungan');
+        $objPHPExcel->getActiveSheet()->SetCellValue('E5', 'Catatan');
+        $objPHPExcel->getActiveSheet()->SetCellValue('F5', 'Latitude Longitude Awal');
+        $objPHPExcel->getActiveSheet()->SetCellValue('G5', 'Latitude Longitude Baru');
+        $objPHPExcel->getActiveSheet()->SetCellValue('H5', 'ID Gas Pelanggan');
+        $objPHPExcel->getActiveSheet()->SetCellValue('I5', 'Pembacaan Meteran');
+        $objPHPExcel->getActiveSheet()->SetCellValue('J5', 'Foto Meteran');
+        $objPHPExcel->getActiveSheet()->SetCellValue('K5', 'Tanggal Kunjungan');
+        $objPHPExcel->getActiveSheet()->SetCellValue('L5', 'Foto Selfie');
+        $objPHPExcel->getActiveSheet()->SetCellValue('M5', 'Petugas');
         $objPHPExcel->getActiveSheet()->getRowDimension('5')->setRowHeight(20);
 
         $judul = 'Data Riwayat Kunjungan';
@@ -367,27 +358,26 @@ class Riwayat extends CI_Controller
             }
             $objPHPExcel->getActiveSheet()->SetCellValue('B' . $rowCount, $status);
             $objPHPExcel->getActiveSheet()->SetCellValue('C' . $rowCount, $list->nama_kunjungan);
-            $objPHPExcel->getActiveSheet()->SetCellValue('D' . $rowCount, $list->nomor_pelanggan);
-            $objPHPExcel->getActiveSheet()->SetCellValue('E' . $rowCount, $list->nomor_meteran);
-            $objPHPExcel->getActiveSheet()->SetCellValue('F' . $rowCount, $list->alamat);
-            $objPHPExcel->getActiveSheet()->SetCellValue('G' . $rowCount, $list->catatan);
-            $objPHPExcel->getActiveSheet()->SetCellValue('H' . $rowCount, $list->latitude . ', ' . $list->longitude);
-            $objPHPExcel->getActiveSheet()->SetCellValue('I' . $rowCount, $list->id_gas_pelanggan);
-            $objPHPExcel->getActiveSheet()->SetCellValue('J' . $rowCount, $list->pembacaan_meter);
+            $objPHPExcel->getActiveSheet()->SetCellValue('D' . $rowCount, $list->alamat);
+            $objPHPExcel->getActiveSheet()->SetCellValue('E' . $rowCount, $list->catatan);
+            $objPHPExcel->getActiveSheet()->SetCellValue('F' . $rowCount, $list->latitude_awal . ', ' . $list->longitude_awal);
+            $objPHPExcel->getActiveSheet()->SetCellValue('G' . $rowCount, $list->latitude_baru . ', ' . $list->longitude_baru);
+            $objPHPExcel->getActiveSheet()->SetCellValue('H' . $rowCount, $list->id_gas_pelanggan);
+            $objPHPExcel->getActiveSheet()->SetCellValue('I' . $rowCount, $list->pembacaan_meter);
             if ($list->foto_meteran) {
-                $objPHPExcel->getActiveSheet()->getCell('K' . $rowCount)->getHyperlink()->setUrl($list->foto_meteran);
-                $objPHPExcel->getActiveSheet()->SetCellValue('K' . $rowCount, $list->foto_meteran);
+                $objPHPExcel->getActiveSheet()->getCell('J' . $rowCount)->getHyperlink()->setUrl($list->foto_meteran);
+                $objPHPExcel->getActiveSheet()->SetCellValue('J' . $rowCount, $list->foto_meteran);
             } else {
-                $objPHPExcel->getActiveSheet()->SetCellValue('K' . $rowCount, "Tidak ada foto");
+                $objPHPExcel->getActiveSheet()->SetCellValue('J' . $rowCount, "Tidak ada foto");
             }
-            $objPHPExcel->getActiveSheet()->SetCellValue('L' . $rowCount, format_indo($list->tgl_kunjungan));
+            $objPHPExcel->getActiveSheet()->SetCellValue('K' . $rowCount, format_indo($list->tgl_kunjungan));
             if ($list->foto_selfie) {
-                $objPHPExcel->getActiveSheet()->getCell('M' . $rowCount)->getHyperlink()->setUrl($list->foto_selfie);
-                $objPHPExcel->getActiveSheet()->SetCellValue('M' . $rowCount, $list->foto_selfie);
+                $objPHPExcel->getActiveSheet()->getCell('L' . $rowCount)->getHyperlink()->setUrl($list->foto_selfie);
+                $objPHPExcel->getActiveSheet()->SetCellValue('L' . $rowCount, $list->foto_selfie);
             } else {
-                $objPHPExcel->getActiveSheet()->SetCellValue('M' . $rowCount, "Tidak ada foto");
+                $objPHPExcel->getActiveSheet()->SetCellValue('L' . $rowCount, "Tidak ada foto");
             }
-            $objPHPExcel->getActiveSheet()->SetCellValue('N' . $rowCount, $list->nama);
+            $objPHPExcel->getActiveSheet()->SetCellValue('M' . $rowCount, $list->nama);
 
             $no++;
             $rowCount++;
