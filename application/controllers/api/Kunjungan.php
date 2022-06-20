@@ -283,7 +283,6 @@ class Kunjungan extends RestController
         }
     }
 
-
     public function last_kunjungan_get()
     {
 
@@ -320,8 +319,9 @@ class Kunjungan extends RestController
             ], 404);
         }
     }
-    
-    public function update_kunjungan_post($id_kunjungan){
+
+    public function update_kunjungan_post($id_kunjungan)
+    {
 
         $data = array(
             'latitude_baru' => $this->post('latitude_baru'),
@@ -340,6 +340,38 @@ class Kunjungan extends RestController
             $this->response([
                 'status' => '404',
                 'message' => 'Terjadi Kesalahan!'
+            ], 404);
+        }
+    }
+
+    public function delete_kunjungan_delete()
+    {
+
+        $id = $this->delete('id_kunjungan');
+
+        $count_riwayat = $this->MCore->select_data('id_kunjungan', 'riwayat_kunjungan', 'id_kunjungan = ' . $id)->num_rows();
+
+        // CHECK
+        if ($count_riwayat == 0) {
+
+            $sql = $this->MCore->delete_data('daftar_kunjungan', array('id_kunjungan' => $id));
+            $sql = $this->MCore->delete_data('kunjungan', array('id_kunjungan' => $id));
+
+            if ($sql) {
+                $this->response([
+                    'status' => '200',
+                    'message' => 'Data Berhasil Dihapus'
+                ], 200);
+            } else {
+                $this->response([
+                    'status' => '404',
+                    'message' => 'Terjadi Kesalahan!'
+                ], 404);
+            }
+        } else {
+            $this->response([
+                'status' => '404',
+                'message' => 'Tidak bisa dihapus karena sudah ada riwayat kunjungan'
             ], 404);
         }
     }

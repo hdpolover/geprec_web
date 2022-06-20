@@ -56,6 +56,7 @@ class Kunjungan extends CI_Controller
         ob_start();
         foreach ($data->result_array() as $value) {
 
+
             $status = '<span class="badge badge-primary">Aktif</span>';
 
             $button = '<button id="btn-assign" type="button" data-toggle="tooltip" data-id="' . $value['id_kunjungan'] . '" title="" class="btn btn-link btn-simple-secondary" data-original-title="Assign Petugas">
@@ -63,6 +64,23 @@ class Kunjungan extends CI_Controller
             <button id="btn-edit" type="button" data-toggle="tooltip" data-id="' . $value['id_kunjungan'] . '" title="" class="btn btn-link btn-simple-primary" data-original-title="Edit">
             <i class="fa fa-edit"></i>
         </button>';
+            // untuk reset lokasi
+            if ($value['reset_lokasi'] == 1) {
+
+                $status_reset = '<span class="badge badge-primary">Tersedia</span>';
+                $button .= '
+                <button id="btn-reset-nonaktif" data-id="' . $value['id_kunjungan'] . '" type="button" data-toggle="tooltip" title="" class="btn btn-link btn-simple-danger" data-original-title="Cabut Reset Lokasi">
+                    <i class="fa fa-eraser text-danger"></i>
+                </button>';
+            } else if ($value['reset_lokasi'] == 0) {
+
+                $status_reset = '<span class="badge badge-danger">Tidak tersedia</span>';
+                $button .= '
+                <button id="btn-reset-aktif" data-id="' . $value['id_kunjungan'] . '" type="button" data-toggle="tooltip" title="" class="btn btn-link btn-simple-success" data-original-title="Beri Reset Lokasi">
+                    <i class="fa fa-check-double text-secondary"></i>
+                </button>';
+            }
+
             if ($value['status'] == 0) {
                 $status = '<span class="badge badge-danger">Tidak Aktif</span>';
                 $button .= '
@@ -76,25 +94,24 @@ class Kunjungan extends CI_Controller
                 </button>';
             }
 
-            // untuk reset lokasi
-            if ($value['reset_lokasi'] == 1) {
+            // Button delete kunjungan
+            $count_riwayat = $this->MCore->select_data('id_kunjungan', 'riwayat_kunjungan', 'id_kunjungan = ' . $value['id_kunjungan'])->num_rows();
 
-                $status_reset = '<span class="badge badge-primary">Tersedia</span>';
-                $button .= '
-                <button id="btn-reset-nonaktif" data-id="' . $value['id_kunjungan'] . '" type="button" data-toggle="tooltip" title="" class="btn btn-link btn-simple-danger" data-original-title="Cabut Reset Lokasi">
-                    <i class="fa fa-trash text-danger"></i>
-                </button>';
-            } else if ($value['reset_lokasi'] == 0) {
-
-                $status_reset = '<span class="badge badge-danger">Tidak tersedia</span>';
-                $button .= '
-                <button id="btn-reset-aktif" data-id="' . $value['id_kunjungan'] . '" type="button" data-toggle="tooltip" title="" class="btn btn-link btn-simple-success" data-original-title="Beri Reset Lokasi">
-                    <i class="fa fa-check-double text-secondary"></i>
-                </button>';
+            if ($count_riwayat == 0) {
+                $button .= '<button id="btn-delete" type="button" data-toggle="tooltip" data-id="' . $value['id_kunjungan'] . '" title="" class="btn btn-link btn-simple-danger" data-original-title="Hapus Kunjungan">
+            <i class="fa fa-trash-alt text-danger"></i>
+        </button>';
             }
-            $button .= '<button id="btn-export-assign" type="button" data-toggle="tooltip" data-id="' . $value['id_kunjungan'] . '" title="" class="btn btn-link btn-simple-success" data-original-title="Export">
+
+            // Button export assign
+
+            $count_daftar_kunjungan = $this->MCore->select_data('id_kunjungan', 'daftar_kunjungan', 'id_kunjungan = ' . $value['id_kunjungan'])->num_rows();
+
+            if ($count_daftar_kunjungan > 0) {
+                $button .= '<button id="btn-export-assign" type="button" data-toggle="tooltip" data-id="' . $value['id_kunjungan'] . '" title="" class="btn btn-link btn-simple-success" data-original-title="Export">
             <i class="fa fa-file-excel text-success"></i>
         </button>';
+            }
 ?>
             <tr>
                 <td class="text-center"><?= $no ?></td>
@@ -147,8 +164,6 @@ class Kunjungan extends CI_Controller
 
         $data = array(
             'nama_kunjungan' => $this->input->post('nama_kunjungan'),
-            // 'nomor_pelanggan' => $this->input->post('nomor_pelanggan'),
-            // 'nomor_meteran' => $this->input->post('nomor_meteran'),
             'alamat' => $this->input->post('alamat'),
             'catatan' => $this->input->post('catatan'),
             'latitude_awal' => $this->input->post('latitude_awal'),
@@ -279,22 +294,6 @@ class Kunjungan extends CI_Controller
                     : <?= $data['nama_kunjungan'] ?>
                 </div>
             </div>
-            <!-- <div class="row">
-                <div class="col-4">
-                    Nomor Pelanggan
-                </div>
-                <div class="col">
-                    : <?= $data['nomor_pelanggan'] ?>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-4">
-                    Nomor Meteran
-                </div>
-                <div class="col">
-                    : <?= $data['nomor_meteran'] ?>
-                </div>
-            </div> -->
             <div class="row">
                 <div class="col-4">
                     Alamat Kunjungan
@@ -313,7 +312,7 @@ class Kunjungan extends CI_Controller
             </div>
             <div class="row">
                 <div class="col-4">
-                    Lati dan Long Awal
+                    Lat dan Long Awal
                 </div>
                 <div class="col">
                     : <?= $data['latitude_awal'] . ', ' . $data['longitude_awal'] ?>
@@ -343,12 +342,12 @@ class Kunjungan extends CI_Controller
         <hr>
         <h4>Data Petugas</h4>
         <div class="table-responsive">
-            <table class="table">
+            <table id="table-assign" class="display table table-striped table-hover table-sm">
                 <thead>
                     <tr>
-                        <th>No</th>
-                        <th>Nama Petugas</th>
-                        <th>Tanggal Ditambahkan</th>
+                        <th style="width: 10%">No</th>
+                        <th style="width: 40%">Nama Petugas</th>
+                        <th style="width: 50%">Tanggal Ditambahkan</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -382,7 +381,7 @@ class Kunjungan extends CI_Controller
         </div>
         <hr>
         <div class="form-group">
-            <label for="nama">Pilih Petugas</label>
+            <label for="nama">Pilih Petugas <i class="text-danger fa fa-asterisk fa-sm"></i></label>
             <select class="form-control" id="nama" name="nama">
                 <?= $this->opt_nama() ?>
             </select>
@@ -420,7 +419,7 @@ class Kunjungan extends CI_Controller
 
 
         if ($id == '') {
-            if ($this->MCore->get_data('daftar_kunjungan', array('LOWER(id_pengguna)' => strtolower($data['id_pengguna'])))->num_rows() > 0) {
+            if ($this->MCore->get_data('daftar_kunjungan', array('LOWER(id_pengguna)' => strtolower($data['id_pengguna']), 'id_kunjungan' => $data['id_kunjungan']))->num_rows() > 0) {
                 $arr['status'] = 0;
                 $arr['message'] = 'Petugas sudah ada.';
                 echo json_encode($arr);
@@ -775,4 +774,19 @@ class Kunjungan extends CI_Controller
         }
         echo json_encode($arr);
     }
+    public function delete($id = 0)
+    {
+        $sql = $this->MCore->delete_data('daftar_kunjungan', array('id_kunjungan' => $id));
+        $sql = $this->MCore->delete_data('kunjungan', array('id_kunjungan' => $id));
+
+        $arr['status'] = $sql;
+        if ($sql) {
+            $arr['message'] = 'Data berhasil dihapus';
+            $arr['tbody'] = $this->list_();
+        } else {
+            $arr['message'] = 'Data gagal dihapus';
+        }
+        echo json_encode($arr);
+    }
+
 }

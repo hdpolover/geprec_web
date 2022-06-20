@@ -23,7 +23,7 @@
                 </ul>
             </div>
             <div class="row">
-                <div class="col-md-8">
+                <div id="list-data" class="col-md-12">
                     <!-- Modal -->
                     <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-hidden="true">
                         <div class="modal-dialog" role="document">
@@ -59,6 +59,11 @@
                                 <div class="form-group">
                                     <button id="btn-export" type="button" class="btn btn-success btn-sm w-100"><i class="fa fa-file-excel"></i> Export Data</button>
                                 </div>
+                                <div class="float-right">
+                                    <div class="form-group">
+                                        <button id="btn-tambah" type="button" class="btn btn-sm btn-primary"><i class="fas fa-plus"></i> Tambah Data</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="card-body">
@@ -83,7 +88,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div id="tambah-data" class="d-none">
                     <form id="form-data">
                         <div class="card">
                             <div class="card-header">
@@ -95,7 +100,7 @@
                                 <input type="hidden" name="id" id="id">
                                 <p class="small">Silahkan isi semua form nya</p>
                                 <div class="row">
-                                    <div class="col-sm-12">
+                                    <div class="col-md-12">
                                         <div class="form-group form-group-default">
                                             <label>Nama Kunjungan</label>
                                             <input id="nama_kunjungan" type="text" class="form-control" autocomplete="off">
@@ -172,6 +177,14 @@
 
             setDataTable('#table-data', '');
 
+            $('#btn-tambah').click(function() {
+
+                $('#list-data').removeClass("col-lg-12 col-md-12");
+                $('#list-data').addClass("col-lg-8 col-md-8");
+                $('#tambah-data').removeClass().addClass('d-block col-lg-4 col-md-4');
+
+            });
+
             $('#btn-cancel').click(function() {
                 $('#form-data').find('input#id').val('');
                 $('#form-data').find('input.form-control').val('');
@@ -180,6 +193,10 @@
                 $('#foto').next('label').html('Pilih Foto');
                 $("#foto").val('');
                 document.getElementById("image-preview").src = "<?= config_item('assets') ?>img/undraw_posting_photo.svg";
+
+                $('#tambah-data').removeClass().addClass('d-none');
+                $('#list-data').addClass("col-lg-12 col-md-12");
+                $('#list-data').removeClass("col-lg-8 col-md-8");
             });
 
             $('#btn-cancel').click();
@@ -232,9 +249,12 @@
                 }
             });
         }).on('click', '#btn-edit', function() {
+            $('#btn-tambah').click();
+
             var b = $(this),
                 i = b.find('i'),
                 cls = i.attr('class');
+
             $.ajax({
                 type: 'POST',
                 url: '<?= base_url('Kunjungan/edit') ?>/' + b.data('id'),
@@ -285,7 +305,7 @@
 
                     $('#detailModal').modal('show');
                     $('#content').html(r.body);
-
+                    setTable('#table-assign');
                 },
 
                 error: function(e) {
@@ -558,6 +578,64 @@
                     });
                 }
             });
+        }).on('click', '#btn-delete', function() {
+            var b = $(this),
+                i = b.find('i'),
+                cls = i.attr('class');
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-danger m-2',
+                    cancelButton: 'btn btn-secondary'
+                },
+                buttonsStyling: false
+            });
+
+            swalWithBootstrapButtons.fire({
+                text: "Apakah anda yakin akan menghapus data kunjungan berikut?",
+                icon: 'warning',
+                showCancelButton: true,
+                cancelButtonText: 'Batal',
+                confirmButtonText: 'Hapus',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '<?= base_url('Kunjungan/delete') ?>/' + b.data('id'),
+                        dataType: 'JSON',
+                        // async: false,
+                        done: function(r) {},
+                        beforeSend: function() {
+                            i.removeClass().addClass('fa fa-spin fa-spinner');
+                        },
+                        success: function(r) {
+                            if (r.status) {
+                                Swal.fire(
+                                    '',
+                                    r.message,
+                                    'success'
+                                )
+                                setDataTable('#table-data', r.tbody);
+                            } else {
+                                Swal.fire(
+                                    '',
+                                    r.message,
+                                    'error'
+                                )
+                            }
+                            i.removeClass().addClass(cls);
+                        },
+                        error: function(e) {
+                            Swal.fire(
+                                'Error!',
+                                'Terjadi kesalahan!!',
+                                'error'
+                            )
+                            i.removeClass().addClass(cls);
+                        }
+                    });
+                }
+            });
         }).on('click', '#btn-export', function(e) {
             e.preventDefault();
             window.open('<?php echo base_url('Kunjungan/export_excel/') ?>', '_blank');
@@ -577,10 +655,10 @@
             }
 
             $(a).DataTable({
-                // "responsive": true,
+                "responsive": true,
                 // "lengthChange": false,
-                // "autoWidth": false,
-                "scrollX": true,
+                "autoWidth": false,
+                // "scrollX": true,
                 // "scrollY": "400px",
                 "scrollCollapse": true,
                 "paging": true,
@@ -589,27 +667,27 @@
                 ],
                 "columnDefs": [{
                     "targets": [0],
-                    "width": "20px",
+                    "width": "3%",
                 }, {
                     "targets": [1],
-                    "width": "60px",
+                    "width": "10%",
                 }, {
                     "targets": [2],
-                    "width": "120px",
+                    "width": "10%",
                 }, {
                     "targets": [3],
-                    "width": "200px",
+                    "width": "25%",
                 }, {
                     "targets": [4],
-                    "width": "200px",
+                    "width": "25%",
                 }, {
                     "targets": [5],
-                    "width": "60px",
+                    "width": "10%",
                     "className": "text-center",
                     "orderable": false,
                 }, {
                     "targets": [6],
-                    "width": "140px",
+                    "width": "17%",
                     "className": "text-center",
                     "orderable": false,
                 }],
@@ -617,6 +695,18 @@
 
                     $('[data-toggle="tooltip"]').tooltip();
                 }
+            });
+        }
+
+        function setTable(a) {
+            if ($.fn.DataTable.isDataTable(a)) {
+                $(a).dataTable().fnDestroy();
+            }
+            $(a).DataTable({
+                // "responsive": true,
+                "lengthChange": true,
+                "autoWidth": true,
+                "paging": true
             });
         }
 
