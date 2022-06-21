@@ -344,10 +344,10 @@ class Kunjungan extends RestController
         }
     }
 
-    public function delete_kunjungan_delete()
+    public function delete_kunjungan_post()
     {
 
-        $id = $this->delete('id_kunjungan');
+        $id = $this->post('id_kunjungan');
 
         $count_riwayat = $this->MCore->select_data('id_kunjungan', 'riwayat_kunjungan', 'id_kunjungan = ' . $id)->num_rows();
 
