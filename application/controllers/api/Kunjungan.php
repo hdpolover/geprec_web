@@ -16,8 +16,8 @@ class Kunjungan extends RestController
     {
 
         $data = array(
-            // 'nomor_pelanggan'   => $this->post('nomor_pelanggan'),
-            // 'nomor_meteran'     => $this->post('nomor_meteran'),
+            'id_pelanggan'      => $this->post('id_pelanggan'),
+            'nomor_meteran'     => $this->post('nomor_meteran'),
             'nama_kunjungan'    => $this->post('nama_kunjungan'),
             'alamat'            => $this->post('alamat'),
             'catatan'           => $this->post('catatan'),
@@ -119,6 +119,42 @@ class Kunjungan extends RestController
                 'status' => false,
                 'message' => 'Tidak ada data',
                 'data' => NULL
+            ], 404);
+        }
+    }
+
+    public function check_kunjungan_get(){
+        
+        $id_user = $this->get('id_pengguna');
+        $id_kunjungan = $this->get('id_kunjungan');
+
+        $option = array(
+            'select'    => 'riwayat_kunjungan.tgl_kunjungan',
+            'table'     => 'pengguna',
+            'join'      => array(
+                array('riwayat_kunjungan' => 'riwayat_kunjungan.id_pengguna = pengguna.id_pengguna'),
+                array('kunjungan' => 'riwayat_kunjungan.id_kunjungan = kunjungan.id_kunjungan')
+            ),
+            'where'     => 'riwayat_kunjungan.id_pengguna = ' . $id_user . ' AND riwayat_kunjungan.id_kunjungan = ' . $id_kunjungan . ' AND DATE(riwayat_kunjungan.tgl_kunjungan) = "'.date('Y-m-d').'"',
+        );
+
+        $data = $this->MCore->join_table($option)->num_rows();
+
+
+        // Check if the users data store contains users
+        if ($data > 0) {
+            // Set the response and exit
+            $this->response([
+                'status' => true,
+                'message' => 'Berhasil',
+                'data'  => 1
+            ], 200);
+        } else {
+            // Set the response and exit
+            $this->response([
+                'status' => false,
+                'message' => 'Tidak ada data',
+                'data' => 0
             ], 404);
         }
     }
