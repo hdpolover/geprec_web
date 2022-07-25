@@ -143,6 +143,18 @@
                                         </div>
                                     </div>
                                     <div class="col-md-12">
+                                        <div class="form-group form-group-default">
+                                            <label>Nomor Meteran</label>
+                                            <input id="nomor_meteran" type="text" class="form-control" autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group form-group-default">
+                                            <label>ID Pelanggan</label>
+                                            <input id="id_pelanggan" type="text" class="form-control" autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
                                         <img id="image-preview" alt="tidak ada foto" src="<?= config_item('assets') ?>img/undraw_posting_photo.svg" />
                                     </div>
                                     <div class="col-md-12">
@@ -217,6 +229,8 @@
             dt.append('longitude_awal', $('input#longitude_awal').val());
             dt.append('latitude_baru', $('input#latitude_baru').val());
             dt.append('longitude_baru', $('input#longitude_baru').val());
+            dt.append('id_pelanggan', $('input#id_pelanggan').val());
+            dt.append('nomor_meteran', $('input#nomor_meteran').val());
 
             $.ajax({
                 type: 'POST',
@@ -275,6 +289,8 @@
                     $('#form-data').find('#longitude_awal').val(r.longitude_awal);
                     $('#form-data').find('#latitude_baru').val(r.latitude_baru);
                     $('#form-data').find('#longitude_baru').val(r.longitude_baru);
+                    $('#form-data').find('#id_pelanggan').val(r.id_pelanggan);
+                    $('#form-data').find('#nomor_meteran').val(r.nomor_meteran);
 
                     if ((r.foto_kunjungan)) {
                         $('#form-data').find("#image-preview").attr("src", r.foto_kunjungan);

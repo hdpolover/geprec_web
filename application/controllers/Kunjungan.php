@@ -163,6 +163,8 @@ class Kunjungan extends CI_Controller
         }
 
         $data = array(
+            'id_pelanggan'      => $this->input->post('id_pelanggan'),
+            'nomor_meteran'     => $this->input->post('nomor_meteran'),
             'nama_kunjungan' => $this->input->post('nama_kunjungan'),
             'alamat' => $this->input->post('alamat'),
             'catatan' => $this->input->post('catatan'),
@@ -326,6 +328,22 @@ class Kunjungan extends CI_Controller
                     : <?= $data['latitude_baru'] . ', ' . $data['longitude_baru'] ?>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-4">
+                    ID Pelanggan
+                </div>
+                <div class="col">
+                    : <?= $data['id_pelanggan'] ?>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-4">
+                    Nomor Meteran
+                </div>
+                <div class="col">
+                    : <?= $data['nomor_meteran'] ?>
+                </div>
+            </div>
         </div>
         <hr>
         <h4>Bukti Dokumen</h4>
@@ -474,7 +492,9 @@ class Kunjungan extends CI_Controller
         $sheet->SetCellValue('E5', 'Catatan');
         $sheet->SetCellValue('F5', 'Latitude Longitude Awal');
         $sheet->SetCellValue('G5', 'Latitude Longitude Baru');
-        $sheet->SetCellValue('H5', 'Foto Kunjungan');
+        $sheet->SetCellValue('H5', 'ID Pelanggan');
+        $sheet->SetCellValue('I5', 'Nomor Meteran');
+        $sheet->SetCellValue('J5', 'Foto Kunjungan');
         $sheet->getRowDimension('5')->setRowHeight(20);
 
         $judul = 'Data Kunjungan';
@@ -507,11 +527,13 @@ class Kunjungan extends CI_Controller
             $sheet->SetCellValue('E' . $rowCount, $list->catatan);
             $sheet->SetCellValue('F' . $rowCount, $list->latitude_awal . ', ' . $list->longitude_awal);
             $sheet->SetCellValue('G' . $rowCount, $list->latitude_baru . ', ' . $list->longitude_baru);
+            $sheet->SetCellValue('H' . $rowCount, $list->id_pelanggan);
+            $sheet->SetCellValue('I' . $rowCount, $list->nomor_meteran);
             if ($list->foto_kunjungan) {
-                $sheet->getCell('H' . $rowCount)->getHyperlink()->setUrl($list->foto_kunjungan);
-                $sheet->SetCellValue('H' . $rowCount, $list->foto_kunjungan);
+                $sheet->getCell('J' . $rowCount)->getHyperlink()->setUrl($list->foto_kunjungan);
+                $sheet->SetCellValue('J' . $rowCount, $list->foto_kunjungan);
             } else {
-                $sheet->SetCellValue('H' . $rowCount, "Tidak ada foto");
+                $sheet->SetCellValue('J' . $rowCount, "Tidak ada foto");
             }
 
             $no++;
@@ -526,6 +548,8 @@ class Kunjungan extends CI_Controller
         $sheet->getColumnDimension('F')->setWidth(30);
         $sheet->getColumnDimension('G')->setWidth(30);
         $sheet->getColumnDimension('H')->setWidth(30);
+        $sheet->getColumnDimension('I')->setWidth(30);
+        $sheet->getColumnDimension('J')->setWidth(30);
 
         // TABEL
         $styleArray = array(
@@ -536,11 +560,11 @@ class Kunjungan extends CI_Controller
                 ),
             )
         );
-        $sheet->getStyle("A5:H" . ($rowCount - 1))->applyFromArray($styleArray);
+        $sheet->getStyle("A5:J" . ($rowCount - 1))->applyFromArray($styleArray);
 
         // ini untuk style header
         $from = "A5"; // or any value
-        $to =  "H5"; // or any value
+        $to =  "J5"; // or any value
         //style
         $style_cell = array(
             'alignment' => array(
@@ -612,12 +636,12 @@ class Kunjungan extends CI_Controller
         $sheet->getRowDimension('1')->setRowHeight(40);
 
         // set header
-        $sheet->SetCellValue('A12', 'No');
-        $sheet->SetCellValue('B12', 'Nama');
-        $sheet->SetCellValue('C12', 'Tanggal Ditambahkan');
-        $sheet->getRowDimension('12')->setRowHeight(20);
+        $sheet->SetCellValue('A14', 'No');
+        $sheet->SetCellValue('B14', 'Nama');
+        $sheet->SetCellValue('C14', 'Tanggal Ditambahkan');
+        $sheet->getRowDimension('14')->setRowHeight(20);
         // set Row
-        $rowCount = 13;
+        $rowCount = 15;
         $no = 1;
         $first = true;
 
@@ -636,9 +660,11 @@ class Kunjungan extends CI_Controller
                 $sheet->SetCellValue('A5', 'Nama Kunjungan');
                 $sheet->SetCellValue('A6', 'Alamat Kunjungan');
                 $sheet->SetCellValue('A7', 'Catatan');
-                $sheet->SetCellValue('A8', 'Latitude Longitude Awal');
-                $sheet->SetCellValue('A9', 'Latitude Longitude Baru');
-                $sheet->SetCellValue('A10', 'Foto Kunjungan');
+                $sheet->SetCellValue('A8', 'Lat dan Long Awal');
+                $sheet->SetCellValue('A9', 'Lat dan Long Baru');
+                $sheet->SetCellValue('A10', 'ID Pelanggan');
+                $sheet->SetCellValue('A11', 'Nomor Meteran');
+                $sheet->SetCellValue('A12', 'Foto Kunjungan');
 
                 switch ($list->status) {
                     case 0:
@@ -654,11 +680,13 @@ class Kunjungan extends CI_Controller
                 $sheet->SetCellValue('B7', " : " . $list->catatan);
                 $sheet->SetCellValue('B8', " : " . $list->latitude_awal . ', ' . $list->longitude_awal);
                 $sheet->SetCellValue('B9', " : " . $list->latitude_baru . ', ' . $list->longitude_baru);
+                $sheet->SetCellValue('B10', " : " . $list->id_pelanggan);
+                $sheet->SetCellValue('B11', " : " . $list->nomor_meteran);
                 if ($list->foto_kunjungan) {
-                    $sheet->getCell('B10')->getHyperlink()->setUrl($list->foto_kunjungan);
-                    $sheet->SetCellValue('B10', $list->foto_kunjungan);
+                    $sheet->getCell('B12')->getHyperlink()->setUrl($list->foto_kunjungan);
+                    $sheet->SetCellValue('B12', $list->foto_kunjungan);
                 } else {
-                    $sheet->SetCellValue('B10', "Tidak ada foto");
+                    $sheet->SetCellValue('B12', "Tidak ada foto");
                 }
 
                 $first = false;
@@ -686,11 +714,11 @@ class Kunjungan extends CI_Controller
                 ),
             )
         );
-        $sheet->getStyle("A12:C" . ($rowCount - 1))->applyFromArray($styleArray);
+        $sheet->getStyle("A14:C" . ($rowCount - 1))->applyFromArray($styleArray);
 
         // ini untuk style header
-        $from = "A12"; // or any value
-        $to =  "C12"; // or any value
+        $from = "A14"; // or any value
+        $to =  "C14"; // or any value
         //style
         $style_cell = array(
             'alignment' => array(
